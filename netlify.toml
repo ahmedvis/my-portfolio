@@ -1,0 +1,19 @@
+# Netlify configuration
+# لا حاجة لأي أمر بناء (build) — الموقع ملفات ثابتة (HTML/CSS/JS)
+
+[build]
+  publish = "."
+
+# لوحة التحكم لا يجب أن تظهر في محركات البحث
+[[headers]]
+  for = "/admin.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+# رؤوس أمان أساسية لكل الصفحات
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

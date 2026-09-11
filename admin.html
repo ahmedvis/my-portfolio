@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Ahmed Visual</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- ================= LOGIN SCREEN ================= -->
+<div class="login-screen" id="loginScreen">
+  <form class="login-card" id="loginForm">
+    <span class="login-brand">Dashboard<span class="dot">.</span></span>
+    <p class="login-sub">Sign in to manage your site content.</p>
+    <label class="field">
+      <span>Email</span>
+      <input type="email" id="loginEmail" required autocomplete="username">
+    </label>
+    <label class="field">
+      <span>Password</span>
+      <input type="password" id="loginPassword" required autocomplete="current-password">
+    </label>
+    <button type="submit" class="btn-primary login-btn" id="loginBtn">Sign in</button>
+    <p class="login-error" id="loginError"></p>
+  </form>
+</div>
+
+<!-- ================= DASHBOARD (hidden until signed in) ================= -->
+<div class="admin-shell" id="adminShell" hidden>
+
+  <aside class="admin-sidebar">
+    <a href="index.html" class="admin-brand">Dashboard<span class="dot">.</span></a>
+    <nav class="admin-nav">
+      <button class="admin-nav-link is-active" data-panel="panel-site">Site</button>
+      <button class="admin-nav-link" data-panel="panel-hero">Hero</button>
+      <button class="admin-nav-link" data-panel="panel-about">About</button>
+      <button class="admin-nav-link" data-panel="panel-contact">Contact</button>
+      <button class="admin-nav-link" data-panel="panel-projects">Projects</button>
+      <button class="admin-nav-link" data-panel="panel-account">Account</button>
+    </nav>
+    <a href="index.html" target="_blank" class="admin-view-site">View live site ↗</a>
+  </aside>
+
+  <main class="admin-main">
+
+    <div class="admin-topbar">
+      <div>
+        <h1 id="panelTitle">Site settings</h1>
+        <p id="panelSub" class="admin-topbar-sub">Basic details used across the site.</p>
+      </div>
+      <span class="save-indicator" id="saveIndicator">Saved</span>
+    </div>
+
+    <!-- SITE -->
+    <section class="admin-panel is-active" id="panel-site">
+      <div class="field-grid">
+        <label class="field">
+          <span>Your name</span>
+          <input type="text" id="f-site-name">
+        </label>
+        <label class="field">
+          <span>Role / title</span>
+          <input type="text" id="f-site-role">
+        </label>
+        <label class="field">
+          <span>Contact email</span>
+          <input type="email" id="f-site-email">
+        </label>
+        <label class="field">
+          <span>WhatsApp number (digits only, country code, no +)</span>
+          <input type="text" id="f-site-whatsapp" placeholder="97333445566">
+        </label>
+        <label class="field">
+          <span>Instagram URL</span>
+          <input type="url" id="f-site-instagram">
+        </label>
+      </div>
+      <h3 class="subhead">Résumé (PDF)</h3>
+      <div class="upload-row">
+        <div class="upload-preview" id="cvPreview">No file uploaded</div>
+        <label class="btn-secondary file-btn">
+          Upload PDF
+          <input type="file" id="f-site-cv-upload" accept="application/pdf" hidden>
+        </label>
+      </div>
+    </section>
+
+    <!-- HERO -->
+    <section class="admin-panel" id="panel-hero">
+      <div class="field-grid">
+        <label class="field field-wide">
+          <span>Small label above headline</span>
+          <input type="text" id="f-hero-kicker">
+        </label>
+        <label class="field field-wide">
+          <span>Headline — line 1</span>
+          <input type="text" id="f-hero-l1">
+        </label>
+        <label class="field field-wide">
+          <span>Headline — line 2</span>
+          <input type="text" id="f-hero-l2">
+        </label>
+        <label class="field field-wide">
+          <span>Headline — line 3 (shown in accent colour)</span>
+          <input type="text" id="f-hero-l3">
+        </label>
+        <label class="field field-wide">
+          <span>Supporting paragraph</span>
+          <textarea id="f-hero-lede" rows="3"></textarea>
+        </label>
+      </div>
+      <h3 class="subhead">Stats row</h3>
+      <div class="stats-editor">
+        <div class="stat-editor-row">
+          <label class="field">
+            <span>Stat 1 — number</span>
+            <input type="text" id="f-stat1-num">
+          </label>
+          <label class="field">
+            <span>Stat 1 — label</span>
+            <input type="text" id="f-stat1-label">
+          </label>
+        </div>
+        <div class="stat-editor-row">
+          <label class="field">
+            <span>Stat 2 — number</span>
+            <input type="text" id="f-stat2-num">
+          </label>
+          <label class="field">
+            <span>Stat 2 — label</span>
+            <input type="text" id="f-stat2-label">
+          </label>
+        </div>
+        <div class="stat-editor-row">
+          <label class="field">
+            <span>Stat 3 — number</span>
+            <input type="text" id="f-stat3-num">
+          </label>
+          <label class="field">
+            <span>Stat 3 — label</span>
+            <input type="text" id="f-stat3-label">
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="admin-panel" id="panel-about">
+      <div class="field-grid">
+        <label class="field field-wide">
+          <span>Section heading</span>
+          <input type="text" id="f-about-heading">
+        </label>
+        <label class="field field-wide">
+          <span>Paragraph 1</span>
+          <textarea id="f-about-p1" rows="3"></textarea>
+        </label>
+        <label class="field field-wide">
+          <span>Paragraph 2</span>
+          <textarea id="f-about-p2" rows="3"></textarea>
+        </label>
+      </div>
+      <h3 class="subhead">Portrait photo</h3>
+      <div class="upload-row">
+        <div class="upload-preview upload-preview-image" id="photoPreview"></div>
+        <label class="btn-secondary file-btn">
+          Upload photo
+          <input type="file" id="f-about-photo-upload" accept="image/*" hidden>
+        </label>
+      </div>
+      <h3 class="subhead">Tools &amp; skills</h3>
+      <p class="field-hint">One per line.</p>
+      <textarea id="f-about-skills" rows="8" class="skills-textarea"></textarea>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="admin-panel" id="panel-contact">
+      <div class="field-grid">
+        <label class="field field-wide">
+          <span>Section heading</span>
+          <input type="text" id="f-contact-heading">
+        </label>
+        <label class="field field-wide">
+          <span>Section subtext</span>
+          <input type="text" id="f-contact-sub">
+        </label>
+      </div>
+      <p class="field-hint">Email, WhatsApp and Instagram links are set on the <button class="link-btn" data-goto="panel-site">Site panel</button>.</p>
+    </section>
+
+    <!-- PROJECTS -->
+    <section class="admin-panel" id="panel-projects">
+      <button class="btn-primary" id="addProjectBtn">+ Add project</button>
+      <div class="project-editor-list" id="projectEditorList"></div>
+    </section>
+
+    <!-- ACCOUNT -->
+    <section class="admin-panel" id="panel-account">
+      <div class="data-card">
+        <h3>Signed in as</h3>
+        <p id="accountEmail">—</p>
+      </div>
+      <div class="data-card">
+        <h3>Export a backup</h3>
+        <p>Download everything currently on the site — text and project list — as a JSON file, for your records.</p>
+        <button class="btn-primary" id="exportBtn">Download content.json</button>
+      </div>
+      <div class="data-card">
+        <h3>Sign out</h3>
+        <p>End your dashboard session on this device.</p>
+        <button class="btn-secondary" id="signOutBtn">Sign out</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
+<script src="content.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
