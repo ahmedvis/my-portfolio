@@ -602,7 +602,62 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .lightbox.is-open { opacity: 1; visibility: visible; }
 
 .lightbox-inner { max-width: 880px; max-height: 100%; overflow: auto; }
-.lightbox-inner img { width: 100%; border-radius: var(--radius); }
+
+.lightbox-carousel {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #000;
+}
+.lightbox-carousel-track {
+  display: flex;
+  transition: transform 0.35s var(--ease);
+}
+.carousel-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+}
+.carousel-slide img {
+  width: 100%;
+  display: block;
+  border-radius: 0;
+}
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.45);
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+.carousel-arrow:hover { background: rgba(0,0,0,0.7); }
+.carousel-arrow-prev { left: 12px; }
+.carousel-arrow-next { right: 12px; }
+.carousel-dots {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.carousel-dot.is-active { background: #fff; transform: scale(1.2); }
+
 .lightbox-caption { padding: 20px 4px; color: var(--paper); }
 .lightbox-cat { font-size: 12px; color: var(--accent); font-weight: 500; }
 .lightbox-caption h3 {

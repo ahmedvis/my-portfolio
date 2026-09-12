@@ -102,6 +102,25 @@ a { color: inherit; text-decoration: none; }
 }
 .upload-preview-image img { width: 100%; height: 100%; object-fit: cover; }
 
+.multi-image-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+  max-width: 420px;
+}
+.multi-image-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.btn-tiny {
+  font-size: 11px;
+  padding: 5px 8px;
+  white-space: nowrap;
+}
+
 .file-btn { display: inline-flex; align-items: center; cursor: pointer; }
 .file-btn.is-uploading { opacity: 0.6; pointer-events: none; }
 
@@ -337,6 +356,15 @@ a { color: inherit; text-decoration: none; }
   transition: border-color 0.15s ease;
 }
 .btn-secondary:hover { border-color: var(--ink); }
+
+.btn-danger-outline {
+  color: #c0392b;
+  border-color: #e3b8b2;
+}
+.btn-danger-outline:hover {
+  background: #fbecec;
+  border-color: #c0392b;
+}
 
 .btn-icon {
   background: none;

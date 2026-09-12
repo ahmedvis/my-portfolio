@@ -171,7 +171,12 @@
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-hidden="true">
   <button class="lightbox-close" id="lightboxClose" aria-label="Close">✕</button>
   <div class="lightbox-inner">
-    <img id="lightboxImg" src="" alt="">
+    <div class="lightbox-carousel" id="lightboxCarousel">
+      <div class="lightbox-carousel-track" id="lightboxTrack"></div>
+      <button class="carousel-arrow carousel-arrow-prev" id="carouselPrev" aria-label="Previous image">‹</button>
+      <button class="carousel-arrow carousel-arrow-next" id="carouselNext" aria-label="Next image">›</button>
+      <div class="carousel-dots" id="carouselDots"></div>
+    </div>
     <div class="lightbox-caption">
       <span class="lightbox-cat" id="lightboxCat"></span>
       <h3 id="lightboxTitle"></h3>

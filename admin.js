@@ -219,6 +219,19 @@ handleUpload('f-site-logo-upload', async (url) => {
   showToast('Logo uploaded');
 });
 
+document.getElementById('removeLogoBtn').addEventListener('click', async () => {
+  if (!content.site.logo) { showToast('No logo to remove'); return; }
+  content.site.logo = '';
+  updateLogoPreview();
+  try {
+    await saveSiteContent({ site: content.site });
+    showToast('Logo removed');
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to remove logo — check your connection');
+  }
+});
+
 /* =========================================================
    PROJECTS
    ========================================================= */
@@ -259,13 +272,22 @@ function renderProjectEditor() {
           </select>
         </label>
         <div class="field">
-          <span>Image</span>
-          <div class="upload-row" style="margin-top:0">
-            <div class="upload-preview upload-preview-image">${p.image ? `<img src="${p.image}" alt="">` : ''}</div>
-            <label class="btn-secondary file-btn">
-              Upload
-              <input type="file" accept="image/*" hidden data-project-upload="${p.id}">
-            </label>
+          <span>Images (up to 4)</span>
+          <div class="multi-image-row">
+            ${[0, 1, 2, 3].map(i => {
+              const img = (p.images || [])[i];
+              return `
+                <div class="multi-image-slot">
+                  <div class="upload-preview upload-preview-image">${img ? `<img src="${img}" alt="">` : ''}</div>
+                  ${img
+                    ? `<button type="button" class="btn-secondary btn-danger-outline btn-tiny" data-remove-image="${p.id}" data-image-index="${i}">Remove</button>`
+                    : `<label class="btn-secondary file-btn btn-tiny">
+                         Upload
+                         <input type="file" accept="image/*" hidden data-project-upload="${p.id}" data-image-index="${i}">
+                       </label>`
+                  }
+                </div>`;
+            }).join('')}
           </div>
         </div>
         <label class="field field-wide">
@@ -299,6 +321,27 @@ projectEditorList.addEventListener('click', async (e) => {
       } catch {
         showToast('Could not delete — try again');
       }
+    }
+    return;
+  }
+
+  const removeImg = e.target.closest('[data-remove-image]');
+  if (removeImg) {
+    const id = removeImg.dataset.removeImage;
+    const index = parseInt(removeImg.dataset.imageIndex, 10) || 0;
+    const proj = content.projects.find(p => p.id === id);
+    const images = [...(proj.images || [])];
+    images[index] = null;
+    // إزالة الفراغات في نهاية المصفوفة فقط، مع الحفاظ على ترتيب الصور المتبقية
+    while (images.length && images[images.length - 1] == null) images.pop();
+    proj.images = images;
+    try {
+      await updateProject(id, { images });
+      renderProjectEditor();
+      showToast('Image removed');
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to remove image — check your connection');
     }
     return;
   }
@@ -362,13 +405,16 @@ projectEditorList.addEventListener('change', async (e) => {
   if (!id) return;
   const file = e.target.files[0];
   if (!file) return;
+  const index = parseInt(e.target.dataset.imageIndex, 10) || 0;
   const label = e.target.closest('label');
   label.classList.add('is-uploading');
   try {
     const url = await uploadAsset(file, `projects/${id}`);
     const proj = content.projects.find(p => p.id === id);
-    proj.image = url;
-    await updateProject(id, { image: url });
+    const images = [...(proj.images || [])];
+    images[index] = url;
+    proj.images = images;
+    await updateProject(id, { images });
     renderProjectEditor();
     showToast('Image uploaded');
   } catch (err) {
@@ -384,7 +430,7 @@ document.getElementById('addProjectBtn').addEventListener('click', async () => {
     title: 'New project',
     category: 'branding',
     categoryLabel: 'Brand Identity',
-    image: '',
+    images: [],
     description: '',
     sortOrder: content.projects.length
   };
@@ -395,7 +441,7 @@ document.getElementById('addProjectBtn').addEventListener('click', async () => {
       title: created.title,
       category: created.category,
       categoryLabel: created.category_label,
-      image: created.image,
+      images: created.images || [],
       description: created.description,
       sortOrder: created.sort_order
     });

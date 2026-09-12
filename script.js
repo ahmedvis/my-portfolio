@@ -86,7 +86,7 @@ function renderSite(content) {
         <span class="project-row-desc">${escapeHtml(p.description)}</span>
       </div>
       <div class="project-row-thumb">
-        ${p.image ? `<img src="${p.image}" alt="${escapeAttr(p.title)}" loading="lazy">` : ''}
+        ${p.images && p.images[0] ? `<img src="${p.images[0]}" alt="${escapeAttr(p.title)}" loading="lazy">` : ''}
       </div>
     </div>
   `).join('');
@@ -116,16 +116,45 @@ function renderSite(content) {
 
   /* ===== Lightbox ===== */
   const lightbox = document.getElementById('lightbox');
-  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxTrack = document.getElementById('lightboxTrack');
+  const carouselDots = document.getElementById('carouselDots');
+  const carouselPrev = document.getElementById('carouselPrev');
+  const carouselNext = document.getElementById('carouselNext');
   const lightboxCat = document.getElementById('lightboxCat');
   const lightboxTitle = document.getElementById('lightboxTitle');
   const lightboxDesc = document.getElementById('lightboxDesc');
   const lightboxClose = document.getElementById('lightboxClose');
 
+  let currentSlide = 0;
+  let currentImages = [];
+
+  function goToSlide(index) {
+    if (!currentImages.length) return;
+    currentSlide = (index + currentImages.length) % currentImages.length;
+    lightboxTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
+    carouselDots.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+      dot.classList.toggle('is-active', i === currentSlide);
+    });
+  }
+
   function openProject(index) {
     const project = PROJECTS[index];
-    lightboxImg.src = project.image || '';
-    lightboxImg.alt = project.title;
+    currentImages = (project.images && project.images.length) ? project.images : [];
+    currentSlide = 0;
+
+    lightboxTrack.innerHTML = currentImages.length
+      ? currentImages.map(src => `<div class="carousel-slide"><img src="${src}" alt="${escapeAttr(project.title)}"></div>`).join('')
+      : `<div class="carousel-slide"></div>`;
+
+    const showArrows = currentImages.length > 1;
+    carouselPrev.style.display = showArrows ? 'flex' : 'none';
+    carouselNext.style.display = showArrows ? 'flex' : 'none';
+
+    carouselDots.innerHTML = showArrows
+      ? currentImages.map((_, i) => `<button class="carousel-dot ${i === 0 ? 'is-active' : ''}" data-slide="${i}" aria-label="Go to image ${i + 1}"></button>`).join('')
+      : '';
+
+    lightboxTrack.style.transform = 'translateX(0)';
     lightboxCat.textContent = project.categoryLabel;
     lightboxTitle.textContent = project.title;
     lightboxDesc.textContent = project.description;
@@ -133,6 +162,13 @@ function renderSite(content) {
     lightbox.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
   }
+
+  carouselPrev.addEventListener('click', () => goToSlide(currentSlide - 1));
+  carouselNext.addEventListener('click', () => goToSlide(currentSlide + 1));
+  carouselDots.addEventListener('click', (e) => {
+    const dot = e.target.closest('[data-slide]');
+    if (dot) goToSlide(Number(dot.dataset.slide));
+  });
 
   list.addEventListener('click', (e) => {
     const row = e.target.closest('.project-row');
@@ -154,7 +190,12 @@ function renderSite(content) {
   }
   lightboxClose.addEventListener('click', closeLightbox);
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+  document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('is-open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') goToSlide(currentSlide - 1);
+    if (e.key === 'ArrowRight') goToSlide(currentSlide + 1);
+  });
 
   /* ===== Mobile menu ===== */
   const menuToggle = document.querySelector('.menu-toggle');
