@@ -272,22 +272,22 @@ function renderProjectEditor() {
           </select>
         </label>
         <div class="field">
-          <span>Images (up to 4)</span>
-          <div class="multi-image-row">
-            ${[0, 1, 2, 3].map(i => {
-              const img = (p.images || [])[i];
-              return `
-                <div class="multi-image-slot">
-                  <div class="upload-preview upload-preview-image">${img ? `<img src="${img}" alt="">` : ''}</div>
-                  ${img
-                    ? `<button type="button" class="btn-secondary btn-danger-outline btn-tiny" data-remove-image="${p.id}" data-image-index="${i}">Remove</button>`
-                    : `<label class="btn-secondary file-btn btn-tiny">
-                         Upload
-                         <input type="file" accept="image/*" hidden data-project-upload="${p.id}" data-image-index="${i}">
-                       </label>`
-                  }
-                </div>`;
-            }).join('')}
+          <span>Images (up to 20) — drag to reorder</span>
+          <div class="image-gallery" data-gallery="${p.id}">
+            ${(p.images || []).map((img, i) => `
+              <div class="gallery-item" draggable="true" data-image-index="${i}">
+                <div class="gallery-item-thumb"><img src="${img}" alt=""></div>
+                <span class="gallery-item-number">${i + 1}</span>
+                <button type="button" class="gallery-item-remove" data-remove-image="${p.id}" data-image-index="${i}" title="Remove image">✕</button>
+              </div>
+            `).join('')}
+            ${(p.images || []).length < 20 ? `
+              <label class="gallery-add-btn">
+                <span class="gallery-add-icon">+</span>
+                <span class="gallery-add-label">Add photos</span>
+                <input type="file" accept="image/*" multiple hidden data-project-upload="${p.id}">
+              </label>
+            ` : ''}
           </div>
         </div>
         <label class="field field-wide">
@@ -331,9 +331,7 @@ projectEditorList.addEventListener('click', async (e) => {
     const index = parseInt(removeImg.dataset.imageIndex, 10) || 0;
     const proj = content.projects.find(p => p.id === id);
     const images = [...(proj.images || [])];
-    images[index] = null;
-    // إزالة الفراغات في نهاية المصفوفة فقط، مع الحفاظ على ترتيب الصور المتبقية
-    while (images.length && images[images.length - 1] == null) images.pop();
+    images.splice(index, 1);
     proj.images = images;
     try {
       await updateProject(id, { images });
@@ -367,6 +365,63 @@ projectEditorList.addEventListener('click', async (e) => {
     }
     return;
   }
+});
+
+/* ===== Drag & drop reordering for project images ===== */
+let dragSrcIndex = null;
+let dragProjectId = null;
+
+projectEditorList.addEventListener('dragstart', (e) => {
+  const item = e.target.closest('.gallery-item');
+  if (!item) return;
+  dragSrcIndex = parseInt(item.dataset.imageIndex, 10);
+  dragProjectId = item.closest('[data-gallery]').dataset.gallery;
+  item.classList.add('is-dragging');
+  e.dataTransfer.effectAllowed = 'move';
+});
+
+projectEditorList.addEventListener('dragend', (e) => {
+  const item = e.target.closest('.gallery-item');
+  if (item) item.classList.remove('is-dragging');
+  projectEditorList.querySelectorAll('.gallery-item.is-drop-target').forEach(el => el.classList.remove('is-drop-target'));
+});
+
+projectEditorList.addEventListener('dragover', (e) => {
+  const item = e.target.closest('.gallery-item');
+  if (!item || dragSrcIndex === null) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  projectEditorList.querySelectorAll('.gallery-item.is-drop-target').forEach(el => el.classList.remove('is-drop-target'));
+  item.classList.add('is-drop-target');
+});
+
+projectEditorList.addEventListener('drop', async (e) => {
+  const item = e.target.closest('.gallery-item');
+  if (!item || dragSrcIndex === null) return;
+  e.preventDefault();
+  const gallery = item.closest('[data-gallery]');
+  const id = gallery.dataset.gallery;
+  if (id !== dragProjectId) { dragSrcIndex = null; dragProjectId = null; return; }
+
+  const targetIndex = parseInt(item.dataset.imageIndex, 10);
+  if (targetIndex === dragSrcIndex) { dragSrcIndex = null; dragProjectId = null; return; }
+
+  const proj = content.projects.find(p => p.id === id);
+  const images = [...(proj.images || [])];
+  const [moved] = images.splice(dragSrcIndex, 1);
+  images.splice(targetIndex, 0, moved);
+  proj.images = images;
+  renderProjectEditor();
+
+  try {
+    await updateProject(id, { images });
+  } catch (err) {
+    console.error(err);
+    showToast('Could not save new image order');
+  }
+
+  dragSrcIndex = null;
+  dragProjectId = null;
 });
 
 projectEditorList.addEventListener('input', (e) => {
@@ -403,20 +458,29 @@ projectEditorList.addEventListener('input', (e) => {
 projectEditorList.addEventListener('change', async (e) => {
   const id = e.target.dataset.projectUpload;
   if (!id) return;
-  const file = e.target.files[0];
-  if (!file) return;
-  const index = parseInt(e.target.dataset.imageIndex, 10) || 0;
+  const files = Array.from(e.target.files || []);
+  if (!files.length) return;
+
+  const proj = content.projects.find(p => p.id === id);
+  const currentImages = [...(proj.images || [])];
+  const remainingSlots = 20 - currentImages.length;
+  const filesToUpload = files.slice(0, remainingSlots);
+
+  if (files.length > remainingSlots) {
+    showToast(`Only ${remainingSlots} more image(s) can be added (20 max)`);
+  }
+  if (!filesToUpload.length) return;
+
   const label = e.target.closest('label');
   label.classList.add('is-uploading');
   try {
-    const url = await uploadAsset(file, `projects/${id}`);
-    const proj = content.projects.find(p => p.id === id);
-    const images = [...(proj.images || [])];
-    images[index] = url;
-    proj.images = images;
-    await updateProject(id, { images });
+    const uploadedUrls = await Promise.all(
+      filesToUpload.map(file => uploadAsset(file, `projects/${id}`))
+    );
+    proj.images = [...currentImages, ...uploadedUrls];
+    await updateProject(id, { images: proj.images });
     renderProjectEditor();
-    showToast('Image uploaded');
+    showToast(uploadedUrls.length > 1 ? `${uploadedUrls.length} images uploaded` : 'Image uploaded');
   } catch (err) {
     console.error(err);
     showToast('Upload failed — check your connection');
