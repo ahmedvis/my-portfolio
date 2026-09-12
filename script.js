@@ -204,6 +204,37 @@ function renderSite(content) {
   });
 }
 
+/* =========================================================
+   DARK MODE TOGGLE
+   ========================================================= */
+(function initThemeToggle() {
+  const root = document.documentElement;
+  const toggles = [document.getElementById('themeToggle'), document.getElementById('themeToggleMobile')]
+    .filter(Boolean);
+
+  function currentTheme() {
+    return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  }
+
+  function applyTheme(theme) {
+    if (theme === 'dark') {
+      root.setAttribute('data-theme', 'dark');
+    } else {
+      root.removeAttribute('data-theme');
+    }
+    localStorage.setItem('theme', theme);
+    toggles.forEach(btn => btn.setAttribute('aria-pressed', theme === 'dark'));
+  }
+
+  toggles.forEach(btn => {
+    btn.addEventListener('click', () => {
+      applyTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+    });
+  });
+
+  applyTheme(currentTheme());
+})();
+
 function escapeHtml(s) {
   return (s || '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 }
