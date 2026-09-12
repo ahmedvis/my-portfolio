@@ -29,4 +29,4 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   رسائل هذا النموذج بالذات.
 */
 
-const WEB3FORMS_ACCESS_KEY = 'YOUR-WEB3FORMS-ACCESS-KEY';
+const WEB3FORMS_ACCESS_KEY = '5cf1cf4f-d8bd-49df-8b5a-d5246de5558b';
