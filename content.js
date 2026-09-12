@@ -13,7 +13,8 @@ const DEFAULT_CONTENT = {
     email: "hello@ahmedvis.com",
     whatsapp: "97300000000",
     instagram: "https://instagram.com/",
-    cvFile: ""
+    linkedin: "https://linkedin.com/",
+    logo: ""
   },
   hero: {
     kicker: "Graphic Designer — Brand & Digital Identity",
@@ -29,8 +30,7 @@ const DEFAULT_CONTENT = {
     heading: "About",
     paragraph1: "",
     paragraph2: "",
-    skills: [],
-    photo: ""
+    skills: []
   },
   contact: {
     heading: "Start a project",
@@ -129,4 +129,47 @@ async function uploadAsset(file, folder = 'uploads') {
 
   const { data } = supabaseClient.storage.from('portfolio-assets').getPublicUrl(path);
   return data.publicUrl;
+}
+
+/* ===== أداة مشاركة الملفات الخاصة (Files panel — لوحة التحكم فقط) ===== */
+
+/* رفع ملف للمشاركة الخاصة + تسجيله في جدول shared_files */
+async function uploadSharedFile(file) {
+  const cleanName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '-');
+  const path = `${Date.now()}-${cleanName}`;
+
+  const { error: uploadError } = await supabaseClient.storage
+    .from('shared-files')
+    .upload(path, file, { cacheControl: '3600', upsert: false });
+  if (uploadError) { console.error('uploadSharedFile error', uploadError); throw uploadError; }
+
+  const { data: urlData } = supabaseClient.storage.from('shared-files').getPublicUrl(path);
+
+  const { data, error } = await supabaseClient
+    .from('shared_files')
+    .insert({ file_name: file.name, file_path: path, public_url: urlData.publicUrl })
+    .select()
+    .single();
+  if (error) { console.error('uploadSharedFile insert error', error); throw error; }
+
+  return data;
+}
+
+/* جلب قائمة الملفات المشاركة (الأحدث أولًا) */
+async function fetchSharedFiles() {
+  const { data, error } = await supabaseClient
+    .from('shared_files')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) { console.error('fetchSharedFiles error', error); throw error; }
+  return data || [];
+}
+
+/* حذف ملف مشارك (من التخزين ومن الجدول) */
+async function deleteSharedFile(id, filePath) {
+  const { error: storageError } = await supabaseClient.storage.from('shared-files').remove([filePath]);
+  if (storageError) { console.error('deleteSharedFile storage error', storageError); throw storageError; }
+
+  const { error } = await supabaseClient.from('shared_files').delete().eq('id', id);
+  if (error) { console.error('deleteSharedFile row error', error); throw error; }
 }

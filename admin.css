@@ -433,6 +433,52 @@ a { color: inherit; text-decoration: none; }
 }
 .data-card-danger { border-color: #f0d4d1; background: var(--danger-soft); }
 
+/* ===== File sharing panel ===== */
+.shared-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.shared-file-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 18px;
+}
+
+.shared-file-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.shared-file-name {
+  font-weight: 600;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shared-file-date {
+  font-size: 12px;
+  color: var(--stone);
+}
+
+.shared-file-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 /* ===== Toast ===== */
 .toast {
   position: fixed;

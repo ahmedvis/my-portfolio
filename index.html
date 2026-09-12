@@ -23,12 +23,14 @@
 <div class="page-loader" id="pageLoader"><span></span></div>
 
 <header class="site-header">
-  <a href="#top" class="logo" id="logoText">SH<span class="logo-dot">.</span></a>
+  <a href="#top" class="logo" id="logoLink">
+    <img id="logoImg" alt="" style="display:none">
+    <span id="logoText">SH<span class="logo-dot">.</span></span>
+  </a>
   <nav class="main-nav" aria-label="Primary">
     <a href="#work">Work</a>
     <a href="#about">About</a>
-    <a href="#contact">Contact</a>
-    <a href="#contact" class="nav-cv" id="navCv">Résumé ↓</a>
+    <a href="#contact" class="nav-cv">Contact</a>
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
       <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
       <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
@@ -43,7 +45,6 @@
   <a href="#work">Work</a>
   <a href="#about">About</a>
   <a href="#contact">Contact</a>
-  <a href="#contact" id="mobileCv">Résumé</a>
   <button class="theme-toggle theme-toggle-mobile" id="themeToggleMobile" aria-label="Toggle dark mode" title="Toggle dark mode">
     <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
     <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
@@ -95,21 +96,16 @@
       <span class="section-num">02</span>
       <h2 id="aboutHeading">About</h2>
     </div>
-    <div class="about-grid">
-      <div class="about-image">
-        <img id="aboutPhoto" alt="Portrait" loading="lazy" style="display:none">
-      </div>
-      <div class="about-content">
-        <p id="aboutP1"></p>
-        <p id="aboutP2"></p>
+    <div class="about-content">
+      <p id="aboutP1"></p>
+      <p id="aboutP2"></p>
 
-        <div class="skills-block">
-          <h3>Tools &amp; skills</h3>
-          <ul class="skills-list" id="skillsList"></ul>
-        </div>
-
-        <a href="#contact" class="btn btn-primary" id="aboutCv">Download résumé</a>
+      <div class="skills-block">
+        <h3>Tools &amp; skills</h3>
+        <ul class="skills-list" id="skillsList"></ul>
       </div>
+
+      <a href="#contact" class="btn btn-primary">Start a project</a>
     </div>
   </section>
 
@@ -153,9 +149,9 @@
           <span class="contact-card-label">WhatsApp</span>
           <span class="contact-card-value">Message directly</span>
         </a>
-        <a href="mailto:hello@ahmedvis.com" class="contact-card" id="emailCard">
-          <span class="contact-card-label">Email</span>
-          <span class="contact-card-value" id="emailCardValue">hello@ahmedvis.com</span>
+        <a href="https://linkedin.com/" target="_blank" rel="noopener" class="contact-card" id="linkedinCard">
+          <span class="contact-card-label">LinkedIn</span>
+          <span class="contact-card-value">Connect on LinkedIn</span>
         </a>
         <a href="https://instagram.com/" target="_blank" rel="noopener" class="contact-card" id="igCard">
           <span class="contact-card-label">Instagram</span>

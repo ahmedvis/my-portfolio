@@ -41,6 +41,7 @@
       <button class="admin-nav-link" data-panel="panel-about">About</button>
       <button class="admin-nav-link" data-panel="panel-contact">Contact</button>
       <button class="admin-nav-link" data-panel="panel-projects">Projects</button>
+      <button class="admin-nav-link" data-panel="panel-files">File sharing</button>
       <button class="admin-nav-link" data-panel="panel-account">Account</button>
     </nav>
     <a href="index.html" target="_blank" class="admin-view-site">View live site ↗</a>
@@ -68,7 +69,7 @@
           <input type="text" id="f-site-role">
         </label>
         <label class="field">
-          <span>Contact email</span>
+          <span>Contact email (private — used to deliver form messages, never shown on the site)</span>
           <input type="email" id="f-site-email">
         </label>
         <label class="field">
@@ -76,16 +77,21 @@
           <input type="text" id="f-site-whatsapp" placeholder="97333445566">
         </label>
         <label class="field">
+          <span>LinkedIn URL</span>
+          <input type="url" id="f-site-linkedin">
+        </label>
+        <label class="field">
           <span>Instagram URL</span>
           <input type="url" id="f-site-instagram">
         </label>
       </div>
-      <h3 class="subhead">Résumé (PDF)</h3>
+      <h3 class="subhead">Logo</h3>
+      <p class="field-hint">Shown in the header and footer instead of your initials. Best as a transparent PNG or SVG.</p>
       <div class="upload-row">
-        <div class="upload-preview" id="cvPreview">No file uploaded</div>
+        <div class="upload-preview upload-preview-image" id="logoPreview"></div>
         <label class="btn-secondary file-btn">
-          Upload PDF
-          <input type="file" id="f-site-cv-upload" accept="application/pdf" hidden>
+          Upload logo
+          <input type="file" id="f-site-logo-upload" accept="image/*" hidden>
         </label>
       </div>
     </section>
@@ -165,14 +171,6 @@
           <textarea id="f-about-p2" rows="3"></textarea>
         </label>
       </div>
-      <h3 class="subhead">Portrait photo</h3>
-      <div class="upload-row">
-        <div class="upload-preview upload-preview-image" id="photoPreview"></div>
-        <label class="btn-secondary file-btn">
-          Upload photo
-          <input type="file" id="f-about-photo-upload" accept="image/*" hidden>
-        </label>
-      </div>
       <h3 class="subhead">Tools &amp; skills</h3>
       <p class="field-hint">One per line.</p>
       <textarea id="f-about-skills" rows="8" class="skills-textarea"></textarea>
@@ -197,6 +195,20 @@
     <section class="admin-panel" id="panel-projects">
       <button class="btn-primary" id="addProjectBtn">+ Add project</button>
       <div class="project-editor-list" id="projectEditorList"></div>
+    </section>
+
+    <!-- FILE SHARING -->
+    <section class="admin-panel" id="panel-files">
+      <p class="field-hint" style="margin-top:0">
+        Upload a file here to get a shareable link — send it to a client via WhatsApp, email, or anywhere else. This is a private tool for you only; nothing here appears on the public site.
+      </p>
+      <div class="upload-row">
+        <label class="btn-primary file-btn" style="margin-top:12px">
+          Upload a file
+          <input type="file" id="f-share-upload" hidden>
+        </label>
+      </div>
+      <div class="shared-file-list" id="sharedFileList"></div>
     </section>
 
     <!-- ACCOUNT -->

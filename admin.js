@@ -56,6 +56,7 @@ async function showDashboard(session) {
   }
   bindAllFields();
   renderProjectEditor();
+  loadSharedFiles();
 }
 
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -93,9 +94,10 @@ checkSession();
 const panelMeta = {
   'panel-site': ['Site settings', 'Basic details used across the site.'],
   'panel-hero': ['Hero section', 'The first thing a visitor sees.'],
-  'panel-about': ['About section', 'Your bio, photo and skills.'],
+  'panel-about': ['About section', 'Your bio and skills.'],
   'panel-contact': ['Contact section', 'Heading and intro text above the contact form.'],
   'panel-projects': ['Projects', 'Add, edit, reorder or remove work shown on the site.'],
+  'panel-files': ['File sharing', 'Upload a file privately and get a link to send anyone — not part of the public site.'],
   'panel-account': ['Account', 'Session and backup.']
 };
 
@@ -148,8 +150,9 @@ function bindAllFields() {
   bind('f-site-role', 'site', s => s.role, (s, v) => s.role = v);
   bind('f-site-email', 'site', s => s.email, (s, v) => s.email = v);
   bind('f-site-whatsapp', 'site', s => s.whatsapp, (s, v) => s.whatsapp = v);
+  bind('f-site-linkedin', 'site', s => s.linkedin, (s, v) => s.linkedin = v);
   bind('f-site-instagram', 'site', s => s.instagram, (s, v) => s.instagram = v);
-  updateCvPreview();
+  updateLogoPreview();
 
   // Hero
   bind('f-hero-kicker', 'hero', h => h.kicker, (h, v) => h.kicker = v);
@@ -168,7 +171,6 @@ function bindAllFields() {
   bind('f-about-heading', 'about', a => a.heading, (a, v) => a.heading = v);
   bind('f-about-p1', 'about', a => a.paragraph1, (a, v) => a.paragraph1 = v);
   bind('f-about-p2', 'about', a => a.paragraph2, (a, v) => a.paragraph2 = v);
-  updatePhotoPreview();
 
   const skillsTextarea = document.getElementById('f-about-skills');
   skillsTextarea.value = content.about.skills.join('\n');
@@ -183,15 +185,11 @@ function bindAllFields() {
 }
 
 /* =========================================================
-   FILE UPLOADS (résumé PDF, portrait photo)
+   FILE UPLOADS (logo)
    ========================================================= */
-function updateCvPreview() {
-  const el = document.getElementById('cvPreview');
-  el.textContent = content.site.cvFile ? 'résumé.pdf uploaded' : 'No file uploaded';
-}
-function updatePhotoPreview() {
-  const el = document.getElementById('photoPreview');
-  el.innerHTML = content.about.photo ? `<img src="${content.about.photo}" alt="Portrait preview">` : '';
+function updateLogoPreview() {
+  const el = document.getElementById('logoPreview');
+  el.innerHTML = content.site.logo ? `<img src="${content.site.logo}" alt="Logo preview">` : '';
 }
 
 async function handleUpload(inputId, onDone) {
@@ -214,18 +212,11 @@ async function handleUpload(inputId, onDone) {
   });
 }
 
-handleUpload('f-site-cv-upload', async (url) => {
-  content.site.cvFile = url;
-  updateCvPreview();
+handleUpload('f-site-logo-upload', async (url) => {
+  content.site.logo = url;
+  updateLogoPreview();
   await saveSiteContent({ site: content.site });
-  showToast('Résumé uploaded');
-});
-
-handleUpload('f-about-photo-upload', async (url) => {
-  content.about.photo = url;
-  updatePhotoPreview();
-  await saveSiteContent({ about: content.about });
-  showToast('Photo uploaded');
+  showToast('Logo uploaded');
 });
 
 /* =========================================================
@@ -415,6 +406,98 @@ document.getElementById('addProjectBtn').addEventListener('click', async () => {
   } catch (err) {
     console.error(err);
     showToast('Could not add project — check your connection');
+  }
+});
+
+/* =========================================================
+   FILE SHARING (private tool — not part of the public site)
+   ========================================================= */
+let sharedFiles = [];
+
+function formatFileSize(bytes) {
+  if (!bytes && bytes !== 0) return '';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function renderSharedFiles() {
+  const list = document.getElementById('sharedFileList');
+  if (sharedFiles.length === 0) {
+    list.innerHTML = '<p class="field-hint">No files uploaded yet.</p>';
+    return;
+  }
+  list.innerHTML = sharedFiles.map(f => `
+    <div class="shared-file-row" data-id="${f.id}">
+      <div class="shared-file-info">
+        <span class="shared-file-name">${escapeHtml(f.file_name)}</span>
+        <span class="shared-file-date">${new Date(f.created_at).toLocaleDateString()}</span>
+      </div>
+      <div class="shared-file-actions">
+        <button class="btn-secondary" data-copy="${f.id}">Copy link</button>
+        <button class="btn-icon" data-delete-file="${f.id}" title="Delete file">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function loadSharedFiles() {
+  try {
+    sharedFiles = await fetchSharedFiles();
+    renderSharedFiles();
+  } catch (err) {
+    console.error(err);
+    showToast('Could not load shared files');
+  }
+}
+
+document.getElementById('f-share-upload').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const label = e.target.closest('label');
+  label.classList.add('is-uploading');
+  try {
+    const record = await uploadSharedFile(file);
+    sharedFiles.unshift(record);
+    renderSharedFiles();
+    showToast('File uploaded');
+  } catch (err) {
+    console.error(err);
+    showToast('Upload failed — check your connection');
+  } finally {
+    label.classList.remove('is-uploading');
+    e.target.value = '';
+  }
+});
+
+document.getElementById('sharedFileList').addEventListener('click', async (e) => {
+  const copyBtn = e.target.closest('[data-copy]');
+  if (copyBtn) {
+    const f = sharedFiles.find(x => x.id === copyBtn.dataset.copy);
+    if (!f) return;
+    try {
+      await navigator.clipboard.writeText(f.public_url);
+      showToast('Link copied');
+    } catch {
+      prompt('Copy this link:', f.public_url);
+    }
+    return;
+  }
+
+  const delBtn = e.target.closest('[data-delete-file]');
+  if (delBtn) {
+    const f = sharedFiles.find(x => x.id === delBtn.dataset.deleteFile);
+    if (!f) return;
+    if (!confirm(`Delete "${f.file_name}"? Anyone with the link will lose access.`)) return;
+    try {
+      await deleteSharedFile(f.id, f.file_path);
+      sharedFiles = sharedFiles.filter(x => x.id !== f.id);
+      renderSharedFiles();
+      showToast('File deleted');
+    } catch (err) {
+      console.error(err);
+      showToast('Could not delete — try again');
+    }
   }
 });
 

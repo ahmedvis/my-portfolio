@@ -78,7 +78,8 @@ values (
     "email": "hello@ahmedvis.com",
     "whatsapp": "97300000000",
     "instagram": "https://instagram.com/",
-    "cvFile": ""
+    "linkedin": "https://linkedin.com/",
+    "logo": ""
   }'::jsonb,
   '{
     "kicker": "Graphic Designer — Brand & Digital Identity",
@@ -94,8 +95,7 @@ values (
     "heading": "About",
     "paragraph1": "I''m Ahmed, a graphic designer working under the name Ahmed Visual. For seven years I''ve worked with startups and institutions to build visual identities that hold together — from mark and palette through to print and screen.",
     "paragraph2": "Good design doesn''t decorate an idea. It clarifies it. Every project starts with understanding the client, long before I open a design tool.",
-    "skills": ["Adobe Illustrator", "Adobe Photoshop", "Figma", "Adobe InDesign", "After Effects", "Brand Identity", "Packaging Design", "UI/UX Fundamentals"],
-    "photo": ""
+    "skills": ["Adobe Illustrator", "Adobe Photoshop", "Figma", "Adobe InDesign", "After Effects", "Brand Identity", "Packaging Design", "UI/UX Fundamentals"]
   }'::jsonb,
   '{
     "heading": "Start a project",
@@ -139,3 +139,49 @@ create policy "authenticated can update portfolio-assets"
 create policy "authenticated can delete portfolio-assets"
   on storage.objects for delete
   using (bucket_id = 'portfolio-assets' and auth.role() = 'authenticated');
+
+-- =========================================================
+--  أداة مشاركة الملفات الخاصة (Files tab في لوحة التحكم)
+--  bucket منفصل، عام للقراءة فقط لمن يملك الرابط المباشر —
+--  لا يظهر في أي مكان بالموقع العام، ولا توجد صفحة تسرد الملفات
+--  إلا داخل لوحة التحكم بعد تسجيل الدخول.
+-- =========================================================
+
+insert into storage.buckets (id, name, public)
+values ('shared-files', 'shared-files', true)
+on conflict (id) do nothing;
+
+create policy "public can view shared-files via direct link"
+  on storage.objects for select
+  using (bucket_id = 'shared-files');
+
+create policy "authenticated can upload shared-files"
+  on storage.objects for insert
+  with check (bucket_id = 'shared-files' and auth.role() = 'authenticated');
+
+create policy "authenticated can delete shared-files"
+  on storage.objects for delete
+  using (bucket_id = 'shared-files' and auth.role() = 'authenticated');
+
+-- جدول بسيط لتتبع الملفات المرفوعة (الاسم، التاريخ) لعرضها في اللوحة
+create table if not exists shared_files (
+  id uuid primary key default gen_random_uuid(),
+  file_name text not null,
+  file_path text not null,
+  public_url text not null,
+  created_at timestamptz default now()
+);
+
+alter table shared_files enable row level security;
+
+create policy "authenticated can read shared_files"
+  on shared_files for select
+  using (auth.role() = 'authenticated');
+
+create policy "authenticated can insert shared_files"
+  on shared_files for insert
+  with check (auth.role() = 'authenticated');
+
+create policy "authenticated can delete shared_files"
+  on shared_files for delete
+  using (auth.role() = 'authenticated');

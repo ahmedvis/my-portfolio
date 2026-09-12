@@ -23,17 +23,20 @@ async function init() {
 function renderSite(content) {
   /* ===== Site-wide fields ===== */
   document.title = `${content.site.name} — ${content.site.role}`;
-  document.getElementById('logoText').innerHTML =
-    content.site.name.split(' ').map(w => w[0]).join('') + '<span class="logo-dot">.</span>';
+
+  if (content.site.logo) {
+    document.getElementById('logoImg').src = content.site.logo;
+    document.getElementById('logoImg').style.display = '';
+    document.getElementById('logoText').style.display = 'none';
+  } else {
+    document.getElementById('logoText').innerHTML =
+      content.site.name.split(' ').map(w => w[0]).join('') + '<span class="logo-dot">.</span>';
+  }
+
   document.getElementById('footerName').textContent = content.site.name;
 
-  const cvHref = content.site.cvFile || '#contact';
-  [document.getElementById('navCv'), document.getElementById('mobileCv'), document.getElementById('aboutCv')]
-    .forEach(el => el.setAttribute('href', cvHref));
-
   document.getElementById('waCard').setAttribute('href', `https://wa.me/${content.site.whatsapp}`);
-  document.getElementById('emailCard').setAttribute('href', `mailto:${content.site.email}`);
-  document.getElementById('emailCardValue').textContent = content.site.email;
+  document.getElementById('linkedinCard').setAttribute('href', content.site.linkedin);
   document.getElementById('igCard').setAttribute('href', content.site.instagram);
 
   /* ===== Hero ===== */
@@ -60,13 +63,9 @@ function renderSite(content) {
   document.getElementById('aboutHeading').textContent = content.about.heading;
   document.getElementById('aboutP1').textContent = content.about.paragraph1;
   document.getElementById('aboutP2').textContent = content.about.paragraph2;
-  if (content.about.photo) {
-    const photoEl = document.getElementById('aboutPhoto');
-    photoEl.src = content.about.photo;
-    photoEl.style.display = '';
-  }
   document.getElementById('skillsList').innerHTML =
     content.about.skills.map(s => `<li>${escapeHtml(s)}</li>`).join('');
+
 
   /* ===== Contact heading ===== */
   document.getElementById('contactHeading').textContent = content.contact.heading;
@@ -172,13 +171,15 @@ function renderSite(content) {
   });
 
   /* ===== Contact form =====
-     Static site — the form opens the visitor's email app with a
-     pre-filled message addressed to the configured contact email.
+     Submits directly to Web3Forms (no page reload, no email app
+     needed). Web3Forms then emails the message to content.site.email
+     and automatically sends the visitor a confirmation email.
   */
   const form = document.getElementById('contactForm');
   const formNote = document.getElementById('formNote');
+  const submitBtn = form.querySelector('.form-submit');
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const name = document.getElementById('name').value.trim();
@@ -192,15 +193,49 @@ function renderSite(content) {
       return;
     }
 
-    const subject = encodeURIComponent(`New project inquiry from ${name}`);
-    const body = encodeURIComponent(
-      `Name: ${name}\nEmail: ${email}\nProject type: ${projectType}\n\nMessage:\n${message}`
-    );
+    if (!WEB3FORMS_ACCESS_KEY || WEB3FORMS_ACCESS_KEY.startsWith('YOUR-')) {
+      formNote.textContent = 'Contact form is not fully set up yet. Please email directly for now.';
+      formNote.className = 'form-note is-error';
+      return;
+    }
 
-    window.location.href = `mailto:${content.site.email}?subject=${subject}&body=${body}`;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+    formNote.textContent = '';
+    formNote.className = 'form-note';
 
-    formNote.textContent = 'Opening your email app to send the message…';
-    formNote.className = 'form-note is-success';
+    try {
+      const res = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_ACCESS_KEY,
+          subject: `New project inquiry from ${name}`,
+          from_name: content.site.name,
+          name,
+          email,
+          project_type: projectType,
+          message,
+          to: content.site.email
+        })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        formNote.textContent = "Thanks — your message is on its way. You'll also get a confirmation email shortly.";
+        formNote.className = 'form-note is-success';
+        form.reset();
+      } else {
+        throw new Error(data.message || 'Unknown error');
+      }
+    } catch (err) {
+      console.error('Contact form submission failed', err);
+      formNote.textContent = 'Something went wrong sending your message. Please try again in a moment, or reach out via WhatsApp.';
+      formNote.className = 'form-note is-error';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send message';
+    }
   });
 }
 
