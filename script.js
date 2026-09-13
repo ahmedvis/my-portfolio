@@ -253,7 +253,6 @@ function renderSite(content) {
     };
 
     try {
-      // إرسال طلب واحد فقط — يتولى EmailJS إرسال الرد التلقائي تلقائياً للعميل
       await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_ADMIN_TEMPLATE_ID,
