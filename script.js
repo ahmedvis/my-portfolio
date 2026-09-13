@@ -213,8 +213,8 @@ function renderSite(content) {
 
   /* ===== Contact form =====
      Submits via EmailJS: 
-     1) Admin Notification (template_j243i9i) to website owner.
-     2) Auto-Reply confirmation (template_4wtt7tg) to visitor.
+     1) Admin Notification (template_j243i9i)
+     2) Auto-Reply Confirmation (template_4wtt7tg)
   */
   const form = document.getElementById('contactForm');
   const formNote = document.getElementById('formNote');
@@ -250,23 +250,23 @@ function renderSite(content) {
     formNote.textContent = '';
     formNote.className = 'form-note';
 
+    // البيانات المطابقة تماماً مع متغيرات لوحة EmailJS
     const templateParams = {
       from_name: name,
       from_email: email,
       project_type: projectType,
-      message: message,
-      to_email: content.site.email
+      message: message
     };
 
     try {
-      // 1. Send Admin Notification to Owner
+      // 1. إرسال الإشعار لك أنت (Admin Notification)
       await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_ADMIN_TEMPLATE_ID,
         templateParams
       );
 
-      // 2. Send Auto-Reply Confirmation to Client
+      // 2. إرسال الرد التلقائي للعميل (Auto-Reply)
       await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_CLIENT_TEMPLATE_ID,

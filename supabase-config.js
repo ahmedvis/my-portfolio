@@ -1,15 +1,7 @@
 /*
   إعدادات الاتصال بـ Supabase
   =============================
-  هذا الملف الوحيد اللي تحتاجين تعدّلين فيه بياناتك الخاصة.
-
-  1) روحي لمشروعك في supabase.com → Project Settings → API
-  2) انسخي "Project URL" و "anon public" key
-  3) الصقيهم بالأسفل بدل القيم الحالية
-
-  هذا المفتاح (anon key) آمن أنه يكون ظاهر في كود الموقع —
-  هو مصمم للاستخدام العام من المتصفح، والحماية الحقيقية
-  موجودة في قواعد RLS داخل قاعدة البيانات (supabase-schema.sql).
+  هذا الملف يحتوي على بيانات الاتصال بقاعدة البيانات وإعدادات البريد.
 */
 
 const SUPABASE_URL = 'https://zcqispgrumtcqlmafcaf.supabase.co';
@@ -20,14 +12,7 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 /*
   إعدادات نموذج التواصل (EmailJS)
   ====================================
-  EmailJS يرسل رسالة الزائر لبريدك (Admin Notification)،
-  ويرسل للزائر نفسه رسالة تأكيد تلقائية (Auto-Reply).
-
-  1) روح إلى https://www.emailjs.com وأنشئ حساب مجاني
-  2) من "Email Services" اربط بريدك وانسخ الـ Service ID
-  3) من "Email Templates" أنشئ القالب الأول للبريد الإداري (template_j243i9i)
-  4) أنشئ القالب الثاني للرد التلقائي للعميل (template_4wtt7tg)
-  5) من "Account" → "General" انسخ الـ Public Key
+  تم تعريف المفاتيح ومعرفات القوالب لإرسال التنبيه والرد التلقائي.
 */
 
 const EMAILJS_PUBLIC_KEY = 'NgiCqpRePcIq5YXII';
