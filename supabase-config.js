@@ -1,7 +1,7 @@
 /*
-  إعدادات الاتصال بـ Supabase
-  =============================
-  هذا الملف يحتوي على بيانات الاتصال بقاعدة البيانات وإعدادات البريد.
+  إعدادات الاتصال بـ Supabase و EmailJS
+  ====================================
+  بيانات الاتصال بالمشروع والقالب الأساسي للتنبيهات.
 */
 
 const SUPABASE_URL = 'https://zcqispgrumtcqlmafcaf.supabase.co';
@@ -10,19 +10,17 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /*
-  إعدادات نموذج التواصل (EmailJS)
-  ====================================
-  تم تعريف المفاتيح ومعرفات القوالب لإرسال التنبيه والرد التلقائي.
+  إعدادات EmailJS
+  ==============
+  يتم استدعاء قالب الإشعار الإداري فقط، بينما يتم تفعيل الرد التلقائي 
+  للحريف عبر ربط القالب الثاني (template_4wtt7tg) داخل تبويب Auto-Reply من اللوحة.
 */
 
 const EMAILJS_PUBLIC_KEY = 'NgiCqpRePcIq5YXII';
 const EMAILJS_SERVICE_ID = 'service_85u09sj';
 
-// القالب الأول: إشعار لك (Admin Notification)
+// القالب الأساسي للإشعار
 const EMAILJS_ADMIN_TEMPLATE_ID = 'template_j243i9i';
-
-// القالب الثاني: الرد التلقائي للعميل (Auto-Reply)
-const EMAILJS_CLIENT_TEMPLATE_ID = 'template_4wtt7tg';
 
 if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY && !EMAILJS_PUBLIC_KEY.startsWith('YOUR-')) {
   emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });

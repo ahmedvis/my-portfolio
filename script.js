@@ -66,7 +66,6 @@ function renderSite(content) {
   document.getElementById('skillsList').innerHTML =
     content.about.skills.map(s => `<li>${escapeHtml(s)}</li>`).join('');
 
-
   /* ===== Contact heading ===== */
   document.getElementById('contactHeading').textContent = content.contact.heading;
   document.getElementById('contactSub').textContent = content.contact.sub;
@@ -211,11 +210,7 @@ function renderSite(content) {
     });
   });
 
-  /* ===== Contact form =====
-     Submits via EmailJS: 
-     1) Admin Notification (template_j243i9i)
-     2) Auto-Reply Confirmation (template_4wtt7tg)
-  */
+  /* ===== Contact form ===== */
   const form = document.getElementById('contactForm');
   const formNote = document.getElementById('formNote');
   const submitBtn = form.querySelector('.form-submit');
@@ -238,7 +233,7 @@ function renderSite(content) {
       typeof emailjs === 'undefined' ||
       !EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY.startsWith('YOUR-') ||
       !EMAILJS_SERVICE_ID || EMAILJS_SERVICE_ID.startsWith('YOUR-') ||
-      !EMAILJS_ADMIN_TEMPLATE_ID || !EMAILJS_CLIENT_TEMPLATE_ID
+      !EMAILJS_ADMIN_TEMPLATE_ID
     ) {
       formNote.textContent = 'Contact form is not fully set up yet. Please email directly for now.';
       formNote.className = 'form-note is-error';
@@ -250,7 +245,6 @@ function renderSite(content) {
     formNote.textContent = '';
     formNote.className = 'form-note';
 
-    // البيانات المطابقة تماماً مع متغيرات لوحة EmailJS
     const templateParams = {
       from_name: name,
       from_email: email,
@@ -259,17 +253,10 @@ function renderSite(content) {
     };
 
     try {
-      // 1. إرسال الإشعار لك أنت (Admin Notification)
+      // إرسال طلب واحد فقط — يتولى EmailJS إرسال الرد التلقائي تلقائياً للعميل
       await emailjs.send(
         EMAILJS_SERVICE_ID,
         EMAILJS_ADMIN_TEMPLATE_ID,
-        templateParams
-      );
-
-      // 2. إرسال الرد التلقائي للعميل (Auto-Reply)
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_CLIENT_TEMPLATE_ID,
         templateParams
       );
 
