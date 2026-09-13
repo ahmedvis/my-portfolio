@@ -300,14 +300,6 @@ function renderProjectEditor() {
 }
 
 projectEditorList.addEventListener('click', async (e) => {
-  const toggle = e.target.closest('[data-toggle]');
-  if (toggle) {
-    const id = toggle.dataset.toggle;
-    openProjectId = openProjectId === id ? null : id;
-    renderProjectEditor();
-    return;
-  }
-
   const del = e.target.closest('[data-delete]');
   if (del) {
     const id = del.dataset.delete;
@@ -321,25 +313,6 @@ projectEditorList.addEventListener('click', async (e) => {
       } catch {
         showToast('Could not delete — try again');
       }
-    }
-    return;
-  }
-
-  const removeImg = e.target.closest('[data-remove-image]');
-  if (removeImg) {
-    const id = removeImg.dataset.removeImage;
-    const index = parseInt(removeImg.dataset.imageIndex, 10) || 0;
-    const proj = content.projects.find(p => p.id === id);
-    const images = [...(proj.images || [])];
-    images.splice(index, 1);
-    proj.images = images;
-    try {
-      await updateProject(id, { images });
-      renderProjectEditor();
-      showToast('Image removed');
-    } catch (err) {
-      console.error(err);
-      showToast('Failed to remove image — check your connection');
     }
     return;
   }
@@ -362,6 +335,33 @@ projectEditorList.addEventListener('click', async (e) => {
       ]);
     } catch {
       showToast('Could not save new order');
+    }
+    return;
+  }
+
+  const toggle = e.target.closest('[data-toggle]');
+  if (toggle) {
+    const id = toggle.dataset.toggle;
+    openProjectId = openProjectId === id ? null : id;
+    renderProjectEditor();
+    return;
+  }
+
+  const removeImg = e.target.closest('[data-remove-image]');
+  if (removeImg) {
+    const id = removeImg.dataset.removeImage;
+    const index = parseInt(removeImg.dataset.imageIndex, 10) || 0;
+    const proj = content.projects.find(p => p.id === id);
+    const images = [...(proj.images || [])];
+    images.splice(index, 1);
+    proj.images = images;
+    try {
+      await updateProject(id, { images });
+      renderProjectEditor();
+      showToast('Image removed');
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to remove image — check your connection');
     }
     return;
   }

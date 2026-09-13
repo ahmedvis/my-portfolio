@@ -18,15 +18,29 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /*
-  إعدادات نموذج التواصل (Web3Forms)
+  إعدادات نموذج التواصل (EmailJS)
   ====================================
-  1) روح إلى https://web3forms.com
-  2) اكتب بريدك (hello@ahmedvis.com) واضغط Create Access Key — بدون تسجيل حساب
-  3) بيوصلك بريد فيه المفتاح (Access Key) — انسخه والصقه بالأسفل
+  EmailJS يرسل رسالة الزائر لبريدك، ويقدر أيضاً يرسل للزائر نفسه
+  رسالة تأكيد تلقائية (auto-reply) مجاناً — عكس Web3Forms.
 
-  هذا المفتاح آمن أنه يكون ظاهر في كود الموقع — هو مصمم لهذا الغرض
-  (نماذج تُرسل مباشرة من المتصفح)، ولا يعطي وصول لأي شيء غير استقبال
-  رسائل هذا النموذج بالذات.
+  1) روح إلى https://www.emailjs.com وأنشئ حساب مجاني
+  2) من "Email Services" اربط بريدك (Gmail أو أي بريد ثاني)
+     وانسخ الـ Service ID
+  3) من "Email Templates" أنشئ قالب لاستقبال رسائل الزوار
+     (استخدم المتغيرات: {{from_name}}, {{from_email}}, {{project_type}},
+     {{message}}) وانسخ الـ Template ID
+  4) اختياري لكن موصى به: أنشئ قالب ثاني للرد التلقائي على الزائر،
+     وفعّله من تبويب "Auto-Reply" داخل القالب الأول (بدون كود إضافي)
+  5) من "Account" → "General" انسخ الـ Public Key
+
+  هذا المفتاح (Public Key) آمن أنه يكون ظاهر في كود الموقع — هو
+  مصمم للاستخدام العام من المتصفح، تماماً مثل anon key في Supabase.
 */
 
-const WEB3FORMS_ACCESS_KEY = '5cf1cf4f-d8bd-49df-8b5a-d5246de5558b';
+const EMAILJS_PUBLIC_KEY = 'YOUR-EMAILJS-PUBLIC-KEY';
+const EMAILJS_SERVICE_ID = 'YOUR-EMAILJS-SERVICE-ID';
+const EMAILJS_TEMPLATE_ID = 'YOUR-EMAILJS-TEMPLATE-ID';
+
+if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY && !EMAILJS_PUBLIC_KEY.startsWith('YOUR-')) {
+  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+}

@@ -212,9 +212,10 @@ function renderSite(content) {
   });
 
   /* ===== Contact form =====
-     Submits directly to Web3Forms (no page reload, no email app
-     needed). Web3Forms then emails the message to content.site.email
-     and automatically sends the visitor a confirmation email.
+     Submits directly via EmailJS (no page reload, no email app
+     needed). EmailJS emails the message to content.site.email,
+     and if an Auto-Reply template is linked in the EmailJS dashboard,
+     the visitor also gets an automatic confirmation email for free.
   */
   const form = document.getElementById('contactForm');
   const formNote = document.getElementById('formNote');
@@ -234,7 +235,12 @@ function renderSite(content) {
       return;
     }
 
-    if (!WEB3FORMS_ACCESS_KEY || WEB3FORMS_ACCESS_KEY.startsWith('YOUR-')) {
+    if (
+      typeof emailjs === 'undefined' ||
+      !EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY.startsWith('YOUR-') ||
+      !EMAILJS_SERVICE_ID || EMAILJS_SERVICE_ID.startsWith('YOUR-') ||
+      !EMAILJS_TEMPLATE_ID || EMAILJS_TEMPLATE_ID.startsWith('YOUR-')
+    ) {
       formNote.textContent = 'Contact form is not fully set up yet. Please email directly for now.';
       formNote.className = 'form-note is-error';
       return;
@@ -246,29 +252,17 @@ function renderSite(content) {
     formNote.className = 'form-note';
 
     try {
-      const res = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          access_key: WEB3FORMS_ACCESS_KEY,
-          subject: `New project inquiry from ${name}`,
-          from_name: content.site.name,
-          name,
-          email,
-          project_type: projectType,
-          message,
-          to: content.site.email
-        })
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        from_name: name,
+        from_email: email,
+        project_type: projectType,
+        message,
+        to_email: content.site.email
       });
-      const data = await res.json();
 
-      if (data.success) {
-        formNote.textContent = "Thanks — your message is on its way. You'll also get a confirmation email shortly.";
-        formNote.className = 'form-note is-success';
-        form.reset();
-      } else {
-        throw new Error(data.message || 'Unknown error');
-      }
+      formNote.textContent = "Thanks — your message is on its way. You'll also get a confirmation email shortly.";
+      formNote.className = 'form-note is-success';
+      form.reset();
     } catch (err) {
       console.error('Contact form submission failed', err);
       formNote.textContent = 'Something went wrong sending your message. Please try again in a moment, or reach out via WhatsApp.';
