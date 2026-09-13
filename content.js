@@ -59,7 +59,7 @@ async function fetchContent() {
       title: p.title,
       category: p.category,
       categoryLabel: p.category_label,
-      images: Array.isArray(p.images) && p.images.length ? p.images : (p.image ? [p.image] : []),
+      image: p.image,
       description: p.description,
       sortOrder: p.sort_order
     }))
@@ -88,7 +88,7 @@ async function createProject(project) {
       title: project.title,
       category: project.category,
       category_label: project.categoryLabel,
-      images: project.images || [],
+      image: project.image,
       description: project.description,
       sort_order: project.sortOrder
     })
@@ -104,7 +104,7 @@ async function updateProject(id, fields) {
   if ('title' in fields) payload.title = fields.title;
   if ('category' in fields) payload.category = fields.category;
   if ('categoryLabel' in fields) payload.category_label = fields.categoryLabel;
-  if ('images' in fields) payload.images = fields.images;
+  if ('image' in fields) payload.image = fields.image;
   if ('description' in fields) payload.description = fields.description;
   if ('sortOrder' in fields) payload.sort_order = fields.sortOrder;
 

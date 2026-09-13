@@ -86,7 +86,7 @@ function renderSite(content) {
         <span class="project-row-desc">${escapeHtml(p.description)}</span>
       </div>
       <div class="project-row-thumb">
-        ${p.images && p.images[0] ? `<img src="${p.images[0]}" alt="${escapeAttr(p.title)}" loading="lazy">` : ''}
+        ${p.image ? `<img src="${p.image}" alt="${escapeAttr(p.title)}" loading="lazy">` : ''}
       </div>
     </div>
   `).join('');
@@ -116,45 +116,16 @@ function renderSite(content) {
 
   /* ===== Lightbox ===== */
   const lightbox = document.getElementById('lightbox');
-  const lightboxTrack = document.getElementById('lightboxTrack');
-  const carouselDots = document.getElementById('carouselDots');
-  const carouselPrev = document.getElementById('carouselPrev');
-  const carouselNext = document.getElementById('carouselNext');
+  const lightboxImg = document.getElementById('lightboxImg');
   const lightboxCat = document.getElementById('lightboxCat');
   const lightboxTitle = document.getElementById('lightboxTitle');
   const lightboxDesc = document.getElementById('lightboxDesc');
   const lightboxClose = document.getElementById('lightboxClose');
 
-  let currentSlide = 0;
-  let currentImages = [];
-
-  function goToSlide(index) {
-    if (!currentImages.length) return;
-    currentSlide = (index + currentImages.length) % currentImages.length;
-    lightboxTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
-    carouselDots.querySelectorAll('.carousel-dot').forEach((dot, i) => {
-      dot.classList.toggle('is-active', i === currentSlide);
-    });
-  }
-
   function openProject(index) {
     const project = PROJECTS[index];
-    currentImages = (project.images && project.images.length) ? project.images : [];
-    currentSlide = 0;
-
-    lightboxTrack.innerHTML = currentImages.length
-      ? currentImages.map(src => `<div class="carousel-slide"><img src="${src}" alt="${escapeAttr(project.title)}"></div>`).join('')
-      : `<div class="carousel-slide"></div>`;
-
-    const showArrows = currentImages.length > 1;
-    carouselPrev.style.display = showArrows ? 'flex' : 'none';
-    carouselNext.style.display = showArrows ? 'flex' : 'none';
-
-    carouselDots.innerHTML = showArrows
-      ? currentImages.map((_, i) => `<button class="carousel-dot ${i === 0 ? 'is-active' : ''}" data-slide="${i}" aria-label="Go to image ${i + 1}"></button>`).join('')
-      : '';
-
-    lightboxTrack.style.transform = 'translateX(0)';
+    lightboxImg.src = project.image || '';
+    lightboxImg.alt = project.title;
     lightboxCat.textContent = project.categoryLabel;
     lightboxTitle.textContent = project.title;
     lightboxDesc.textContent = project.description;
@@ -162,13 +133,6 @@ function renderSite(content) {
     lightbox.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
   }
-
-  carouselPrev.addEventListener('click', () => goToSlide(currentSlide - 1));
-  carouselNext.addEventListener('click', () => goToSlide(currentSlide + 1));
-  carouselDots.addEventListener('click', (e) => {
-    const dot = e.target.closest('[data-slide]');
-    if (dot) goToSlide(Number(dot.dataset.slide));
-  });
 
   list.addEventListener('click', (e) => {
     const row = e.target.closest('.project-row');
@@ -190,12 +154,7 @@ function renderSite(content) {
   }
   lightboxClose.addEventListener('click', closeLightbox);
   lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
-  document.addEventListener('keydown', (e) => {
-    if (!lightbox.classList.contains('is-open')) return;
-    if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowLeft') goToSlide(currentSlide - 1);
-    if (e.key === 'ArrowRight') goToSlide(currentSlide + 1);
-  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
 
   /* ===== Mobile menu ===== */
   const menuToggle = document.querySelector('.menu-toggle');
@@ -212,9 +171,10 @@ function renderSite(content) {
   });
 
   /* ===== Contact form =====
-     Submits directly to Web3Forms (no page reload, no email app
-     needed). Web3Forms then emails the message to content.site.email
-     and automatically sends the visitor a confirmation email.
+     Submits directly via EmailJS (no page reload, no email app
+     needed). EmailJS sends the notification to content.site.email
+     using one template, and automatically sends the visitor a
+     confirmation email using a second template.
   */
   const form = document.getElementById('contactForm');
   const formNote = document.getElementById('formNote');
@@ -234,8 +194,8 @@ function renderSite(content) {
       return;
     }
 
-    if (!WEB3FORMS_ACCESS_KEY || WEB3FORMS_ACCESS_KEY.startsWith('YOUR-')) {
-      formNote.textContent = 'Contact form is not fully set up yet. Please email directly for now.';
+    if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY.startsWith('YOUR-')) {
+      formNote.textContent = 'Contact form is not fully set up yet. Please try again later.';
       formNote.className = 'form-note is-error';
       return;
     }
@@ -245,30 +205,31 @@ function renderSite(content) {
     formNote.textContent = '';
     formNote.className = 'form-note';
 
-    try {
-      const res = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          access_key: WEB3FORMS_ACCESS_KEY,
-          subject: `New project inquiry from ${name}`,
-          from_name: content.site.name,
-          name,
-          email,
-          project_type: projectType,
-          message,
-          to: content.site.email
-        })
-      });
-      const data = await res.json();
+    const templateParams = {
+      from_name: name,
+      from_email: email,
+      project_type: projectType,
+      message,
+      to_email: content.site.email,
+      site_name: content.site.name
+    };
 
-      if (data.success) {
-        formNote.textContent = "Thanks — your message is on its way. You'll also get a confirmation email shortly.";
-        formNote.className = 'form-note is-success';
-        form.reset();
-      } else {
-        throw new Error(data.message || 'Unknown error');
+    try {
+      // 1) Notify Ahmed
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_NOTIFY, templateParams, EMAILJS_PUBLIC_KEY);
+
+      // 2) Auto-reply to the visitor (separate template, sent to their own email)
+      try {
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_AUTOREPLY, templateParams, EMAILJS_PUBLIC_KEY);
+      } catch (autoReplyErr) {
+        // The main message still got through — don't fail the whole submission
+        // just because the auto-reply template has an issue.
+        console.error('Auto-reply failed (main message still sent)', autoReplyErr);
       }
+
+      formNote.textContent = "Thanks — your message is on its way. You'll also get a confirmation email shortly.";
+      formNote.className = 'form-note is-success';
+      form.reset();
     } catch (err) {
       console.error('Contact form submission failed', err);
       formNote.textContent = 'Something went wrong sending your message. Please try again in a moment, or reach out via WhatsApp.';
@@ -279,37 +240,6 @@ function renderSite(content) {
     }
   });
 }
-
-/* =========================================================
-   DARK MODE TOGGLE
-   ========================================================= */
-(function initThemeToggle() {
-  const root = document.documentElement;
-  const toggles = [document.getElementById('themeToggle'), document.getElementById('themeToggleMobile')]
-    .filter(Boolean);
-
-  function currentTheme() {
-    return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-  }
-
-  function applyTheme(theme) {
-    if (theme === 'dark') {
-      root.setAttribute('data-theme', 'dark');
-    } else {
-      root.removeAttribute('data-theme');
-    }
-    localStorage.setItem('theme', theme);
-    toggles.forEach(btn => btn.setAttribute('aria-pressed', theme === 'dark'));
-  }
-
-  toggles.forEach(btn => {
-    btn.addEventListener('click', () => {
-      applyTheme(currentTheme() === 'dark' ? 'light' : 'dark');
-    });
-  });
-
-  applyTheme(currentTheme());
-})();
 
 function escapeHtml(s) {
   return (s || '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));

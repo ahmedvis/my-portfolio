@@ -102,74 +102,6 @@ a { color: inherit; text-decoration: none; }
 }
 .upload-preview-image img { width: 100%; height: 100%; object-fit: cover; }
 
-.image-gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  gap: 10px;
-  margin-top: 12px;
-  max-width: 520px;
-}
-.gallery-item {
-  position: relative;
-  aspect-ratio: 1;
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--line);
-  cursor: grab;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-.gallery-item:active { cursor: grabbing; }
-.gallery-item.is-dragging { opacity: 0.4; }
-.gallery-item.is-drop-target { transform: scale(0.95); border-color: var(--accent); }
-.gallery-item-thumb { width: 100%; height: 100%; }
-.gallery-item-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
-.gallery-item-number {
-  position: absolute;
-  bottom: 4px;
-  left: 4px;
-  background: rgba(0,0,0,0.65);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 1px 6px;
-  border-radius: 999px;
-  pointer-events: none;
-}
-.gallery-item-remove {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.6);
-  color: #fff;
-  font-size: 11px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s ease;
-}
-.gallery-item-remove:hover { background: #c0392b; }
-
-.gallery-add-btn {
-  aspect-ratio: 1;
-  border: 1.5px dashed var(--line);
-  border-radius: var(--radius);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  color: var(--stone);
-  transition: border-color 0.15s ease, color 0.15s ease;
-}
-.gallery-add-btn:hover { border-color: var(--ink); color: var(--ink); }
-.gallery-add-icon { font-size: 22px; line-height: 1; font-weight: 300; }
-.gallery-add-label { font-size: 10px; font-weight: 500; }
-.gallery-add-btn.is-uploading { opacity: 0.5; pointer-events: none; }
-
 .file-btn { display: inline-flex; align-items: center; cursor: pointer; }
 .file-btn.is-uploading { opacity: 0.6; pointer-events: none; }
 
@@ -406,15 +338,6 @@ a { color: inherit; text-decoration: none; }
 }
 .btn-secondary:hover { border-color: var(--ink); }
 
-.btn-danger-outline {
-  color: #c0392b;
-  border-color: #e3b8b2;
-}
-.btn-danger-outline:hover {
-  background: #fbecec;
-  border-color: #c0392b;
-}
-
 .btn-icon {
   background: none;
   border: 1px solid var(--line);
@@ -576,17 +499,4 @@ a { color: inherit; text-decoration: none; }
 .toast.is-visible {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
-}
-
-/* إصلاح: ضمان أن شاشة الدخول تختفي فعلياً ولا تغطي اللوحة */
-.login-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 10;
-}
-.login-screen[hidden] {
-  display: none !important;
-}
-.admin-shell[hidden] {
-  display: none !important;
 }

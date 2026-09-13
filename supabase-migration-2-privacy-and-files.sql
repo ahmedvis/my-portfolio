@@ -20,18 +20,15 @@ insert into storage.buckets (id, name, public)
 values ('shared-files', 'shared-files', true)
 on conflict (id) do nothing;
 
-drop policy if exists "public can view shared-files via direct link" on storage.objects;
-create policy "public can view shared-files via direct link"
+create policy if not exists "public can view shared-files via direct link"
   on storage.objects for select
   using (bucket_id = 'shared-files');
 
-drop policy if exists "authenticated can upload shared-files" on storage.objects;
-create policy "authenticated can upload shared-files"
+create policy if not exists "authenticated can upload shared-files"
   on storage.objects for insert
   with check (bucket_id = 'shared-files' and auth.role() = 'authenticated');
 
-drop policy if exists "authenticated can delete shared-files" on storage.objects;
-create policy "authenticated can delete shared-files"
+create policy if not exists "authenticated can delete shared-files"
   on storage.objects for delete
   using (bucket_id = 'shared-files' and auth.role() = 'authenticated');
 
@@ -45,17 +42,14 @@ create table if not exists shared_files (
 
 alter table shared_files enable row level security;
 
-drop policy if exists "authenticated can read shared_files" on shared_files;
-create policy "authenticated can read shared_files"
+create policy if not exists "authenticated can read shared_files"
   on shared_files for select
   using (auth.role() = 'authenticated');
 
-drop policy if exists "authenticated can insert shared_files" on shared_files;
-create policy "authenticated can insert shared_files"
+create policy if not exists "authenticated can insert shared_files"
   on shared_files for insert
   with check (auth.role() = 'authenticated');
 
-drop policy if exists "authenticated can delete shared_files" on shared_files;
-create policy "authenticated can delete shared_files"
+create policy if not exists "authenticated can delete shared_files"
   on shared_files for delete
   using (auth.role() = 'authenticated');

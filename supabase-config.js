@@ -12,21 +12,29 @@
   موجودة في قواعد RLS داخل قاعدة البيانات (supabase-schema.sql).
 */
 
-const SUPABASE_URL = 'https://zcqispgrumtcqlmafcaf.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjcWlzcGdydW10Y3FsbWFmY2FmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxNTU5OTIsImV4cCI6MjEwNDczMTk5Mn0._3ofTTrJtCFApIWiz48jixqkKW5BmBBDw6mYi8FF5pI';
+const SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR-ANON-PUBLIC-KEY';
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /*
-  إعدادات نموذج التواصل (Web3Forms)
+  إعدادات نموذج التواصل (EmailJS)
   ====================================
-  1) روح إلى https://web3forms.com
-  2) اكتب بريدك (hello@ahmedvis.com) واضغط Create Access Key — بدون تسجيل حساب
-  3) بيوصلك بريد فيه المفتاح (Access Key) — انسخه والصقه بالأسفل
+  الخطوات الكاملة موجودة في دليل-النشر.md (الجزء الرابع). ملخصها:
 
-  هذا المفتاح آمن أنه يكون ظاهر في كود الموقع — هو مصمم لهذا الغرض
-  (نماذج تُرسل مباشرة من المتصفح)، ولا يعطي وصول لأي شيء غير استقبال
-  رسائل هذا النموذج بالذات.
+  1) أنشئ حساب مجاني في https://www.emailjs.com وأضف Email Service
+     (مثلاً حساب Gmail) — هذا يعطيك SERVICE_ID.
+  2) أنشئ Template لإشعارك أنت (الرسالة اللي توصلك) — يعطيك TEMPLATE_ID.
+  3) أنشئ Template ثاني منفصل للرد التلقائي على الزائر — يعطيك TEMPLATE_ID ثاني.
+  4) من Account → General، انسخ الـ Public Key.
+  5) الصق القيم الأربعة بالأسفل بدل القيم الحالية.
+
+  هذي القيم آمنة تكون ظاهرة في كود الموقع — هذا استخدامها الطبيعي
+  (إرسال من المتصفح مباشرة)، ولا تعطي وصول لأي شيء غير إرسال
+  رسائل عبر القوالب المحددة فقط.
 */
 
-const WEB3FORMS_ACCESS_KEY = '5cf1cf4f-d8bd-49df-8b5a-d5246de5558b';
+const EMAILJS_PUBLIC_KEY = 'YOUR-EMAILJS-PUBLIC-KEY';
+const EMAILJS_SERVICE_ID = 'YOUR-EMAILJS-SERVICE-ID';
+const EMAILJS_TEMPLATE_NOTIFY = 'YOUR-NOTIFY-TEMPLATE-ID';
+const EMAILJS_TEMPLATE_AUTOREPLY = 'YOUR-AUTOREPLY-TEMPLATE-ID';

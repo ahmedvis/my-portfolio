@@ -219,19 +219,6 @@ handleUpload('f-site-logo-upload', async (url) => {
   showToast('Logo uploaded');
 });
 
-document.getElementById('removeLogoBtn').addEventListener('click', async () => {
-  if (!content.site.logo) { showToast('No logo to remove'); return; }
-  content.site.logo = '';
-  updateLogoPreview();
-  try {
-    await saveSiteContent({ site: content.site });
-    showToast('Logo removed');
-  } catch (err) {
-    console.error(err);
-    showToast('Failed to remove logo — check your connection');
-  }
-});
-
 /* =========================================================
    PROJECTS
    ========================================================= */
@@ -272,22 +259,13 @@ function renderProjectEditor() {
           </select>
         </label>
         <div class="field">
-          <span>Images (up to 20) — drag to reorder</span>
-          <div class="image-gallery" data-gallery="${p.id}">
-            ${(p.images || []).map((img, i) => `
-              <div class="gallery-item" draggable="true" data-image-index="${i}">
-                <div class="gallery-item-thumb"><img src="${img}" alt=""></div>
-                <span class="gallery-item-number">${i + 1}</span>
-                <button type="button" class="gallery-item-remove" data-remove-image="${p.id}" data-image-index="${i}" title="Remove image">✕</button>
-              </div>
-            `).join('')}
-            ${(p.images || []).length < 20 ? `
-              <label class="gallery-add-btn">
-                <span class="gallery-add-icon">+</span>
-                <span class="gallery-add-label">Add photos</span>
-                <input type="file" accept="image/*" multiple hidden data-project-upload="${p.id}">
-              </label>
-            ` : ''}
+          <span>Image</span>
+          <div class="upload-row" style="margin-top:0">
+            <div class="upload-preview upload-preview-image">${p.image ? `<img src="${p.image}" alt="">` : ''}</div>
+            <label class="btn-secondary file-btn">
+              Upload
+              <input type="file" accept="image/*" hidden data-project-upload="${p.id}">
+            </label>
           </div>
         </div>
         <label class="field field-wide">
@@ -300,14 +278,6 @@ function renderProjectEditor() {
 }
 
 projectEditorList.addEventListener('click', async (e) => {
-  const toggle = e.target.closest('[data-toggle]');
-  if (toggle) {
-    const id = toggle.dataset.toggle;
-    openProjectId = openProjectId === id ? null : id;
-    renderProjectEditor();
-    return;
-  }
-
   const del = e.target.closest('[data-delete]');
   if (del) {
     const id = del.dataset.delete;
@@ -325,28 +295,9 @@ projectEditorList.addEventListener('click', async (e) => {
     return;
   }
 
-  const removeImg = e.target.closest('[data-remove-image]');
-  if (removeImg) {
-    const id = removeImg.dataset.removeImage;
-    const index = parseInt(removeImg.dataset.imageIndex, 10) || 0;
-    const proj = content.projects.find(p => p.id === id);
-    const images = [...(proj.images || [])];
-    images.splice(index, 1);
-    proj.images = images;
-    try {
-      await updateProject(id, { images });
-      renderProjectEditor();
-      showToast('Image removed');
-    } catch (err) {
-      console.error(err);
-      showToast('Failed to remove image — check your connection');
-    }
-    return;
-  }
-
   const up = e.target.closest('[data-move-up]');
   const down = e.target.closest('[data-move-down]');
-  if (up || down) {
+  if ((up && !up.disabled) || (down && !down.disabled)) {
     const id = (up || down).dataset.moveUp || (up || down).dataset.moveDown;
     const i = content.projects.findIndex(p => p.id === id);
     const j = up ? i - 1 : i + 1;
@@ -365,63 +316,14 @@ projectEditorList.addEventListener('click', async (e) => {
     }
     return;
   }
-});
 
-/* ===== Drag & drop reordering for project images ===== */
-let dragSrcIndex = null;
-let dragProjectId = null;
-
-projectEditorList.addEventListener('dragstart', (e) => {
-  const item = e.target.closest('.gallery-item');
-  if (!item) return;
-  dragSrcIndex = parseInt(item.dataset.imageIndex, 10);
-  dragProjectId = item.closest('[data-gallery]').dataset.gallery;
-  item.classList.add('is-dragging');
-  e.dataTransfer.effectAllowed = 'move';
-});
-
-projectEditorList.addEventListener('dragend', (e) => {
-  const item = e.target.closest('.gallery-item');
-  if (item) item.classList.remove('is-dragging');
-  projectEditorList.querySelectorAll('.gallery-item.is-drop-target').forEach(el => el.classList.remove('is-drop-target'));
-});
-
-projectEditorList.addEventListener('dragover', (e) => {
-  const item = e.target.closest('.gallery-item');
-  if (!item || dragSrcIndex === null) return;
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  projectEditorList.querySelectorAll('.gallery-item.is-drop-target').forEach(el => el.classList.remove('is-drop-target'));
-  item.classList.add('is-drop-target');
-});
-
-projectEditorList.addEventListener('drop', async (e) => {
-  const item = e.target.closest('.gallery-item');
-  if (!item || dragSrcIndex === null) return;
-  e.preventDefault();
-  const gallery = item.closest('[data-gallery]');
-  const id = gallery.dataset.gallery;
-  if (id !== dragProjectId) { dragSrcIndex = null; dragProjectId = null; return; }
-
-  const targetIndex = parseInt(item.dataset.imageIndex, 10);
-  if (targetIndex === dragSrcIndex) { dragSrcIndex = null; dragProjectId = null; return; }
-
-  const proj = content.projects.find(p => p.id === id);
-  const images = [...(proj.images || [])];
-  const [moved] = images.splice(dragSrcIndex, 1);
-  images.splice(targetIndex, 0, moved);
-  proj.images = images;
-  renderProjectEditor();
-
-  try {
-    await updateProject(id, { images });
-  } catch (err) {
-    console.error(err);
-    showToast('Could not save new image order');
+  const toggle = e.target.closest('[data-toggle]');
+  if (toggle) {
+    const id = toggle.dataset.toggle;
+    openProjectId = openProjectId === id ? null : id;
+    renderProjectEditor();
+    return;
   }
-
-  dragSrcIndex = null;
-  dragProjectId = null;
 });
 
 projectEditorList.addEventListener('input', (e) => {
@@ -458,29 +360,17 @@ projectEditorList.addEventListener('input', (e) => {
 projectEditorList.addEventListener('change', async (e) => {
   const id = e.target.dataset.projectUpload;
   if (!id) return;
-  const files = Array.from(e.target.files || []);
-  if (!files.length) return;
-
-  const proj = content.projects.find(p => p.id === id);
-  const currentImages = [...(proj.images || [])];
-  const remainingSlots = 20 - currentImages.length;
-  const filesToUpload = files.slice(0, remainingSlots);
-
-  if (files.length > remainingSlots) {
-    showToast(`Only ${remainingSlots} more image(s) can be added (20 max)`);
-  }
-  if (!filesToUpload.length) return;
-
+  const file = e.target.files[0];
+  if (!file) return;
   const label = e.target.closest('label');
   label.classList.add('is-uploading');
   try {
-    const uploadedUrls = await Promise.all(
-      filesToUpload.map(file => uploadAsset(file, `projects/${id}`))
-    );
-    proj.images = [...currentImages, ...uploadedUrls];
-    await updateProject(id, { images: proj.images });
+    const url = await uploadAsset(file, `projects/${id}`);
+    const proj = content.projects.find(p => p.id === id);
+    proj.image = url;
+    await updateProject(id, { image: url });
     renderProjectEditor();
-    showToast(uploadedUrls.length > 1 ? `${uploadedUrls.length} images uploaded` : 'Image uploaded');
+    showToast('Image uploaded');
   } catch (err) {
     console.error(err);
     showToast('Upload failed — check your connection');
@@ -494,7 +384,7 @@ document.getElementById('addProjectBtn').addEventListener('click', async () => {
     title: 'New project',
     category: 'branding',
     categoryLabel: 'Brand Identity',
-    images: [],
+    image: '',
     description: '',
     sortOrder: content.projects.length
   };
@@ -505,7 +395,7 @@ document.getElementById('addProjectBtn').addEventListener('click', async () => {
       title: created.title,
       category: created.category,
       categoryLabel: created.category_label,
-      images: created.images || [],
+      image: created.image,
       description: created.description,
       sortOrder: created.sort_order
     });
