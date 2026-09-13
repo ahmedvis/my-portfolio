@@ -37,9 +37,9 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   مصمم للاستخدام العام من المتصفح، تماماً مثل anon key في Supabase.
 */
 
-const EMAILJS_PUBLIC_KEY = 'YOUR-EMAILJS-PUBLIC-KEY';
-const EMAILJS_SERVICE_ID = 'YOUR-EMAILJS-SERVICE-ID';
-const EMAILJS_TEMPLATE_ID = 'YOUR-EMAILJS-TEMPLATE-ID';
+const EMAILJS_PUBLIC_KEY = 'NgiCqpRePcIq5YXII';
+const EMAILJS_SERVICE_ID = 'service_85u09sj';
+const EMAILJS_TEMPLATE_ID = 'template_j243i9i';
 
 if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY && !EMAILJS_PUBLIC_KEY.startsWith('YOUR-')) {
   emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
