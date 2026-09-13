@@ -212,10 +212,9 @@ function renderSite(content) {
   });
 
   /* ===== Contact form =====
-     Submits directly via EmailJS (no page reload, no email app
-     needed). EmailJS emails the message to content.site.email,
-     and if an Auto-Reply template is linked in the EmailJS dashboard,
-     the visitor also gets an automatic confirmation email for free.
+     Submits via EmailJS: 
+     1) Admin Notification (template_j243i9i) to website owner.
+     2) Auto-Reply confirmation (template_4wtt7tg) to visitor.
   */
   const form = document.getElementById('contactForm');
   const formNote = document.getElementById('formNote');
@@ -239,7 +238,7 @@ function renderSite(content) {
       typeof emailjs === 'undefined' ||
       !EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY.startsWith('YOUR-') ||
       !EMAILJS_SERVICE_ID || EMAILJS_SERVICE_ID.startsWith('YOUR-') ||
-      !EMAILJS_TEMPLATE_ID || EMAILJS_TEMPLATE_ID.startsWith('YOUR-')
+      !EMAILJS_ADMIN_TEMPLATE_ID || !EMAILJS_CLIENT_TEMPLATE_ID
     ) {
       formNote.textContent = 'Contact form is not fully set up yet. Please email directly for now.';
       formNote.className = 'form-note is-error';
@@ -251,14 +250,28 @@ function renderSite(content) {
     formNote.textContent = '';
     formNote.className = 'form-note';
 
+    const templateParams = {
+      from_name: name,
+      from_email: email,
+      project_type: projectType,
+      message: message,
+      to_email: content.site.email
+    };
+
     try {
-      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-        from_name: name,
-        from_email: email,
-        project_type: projectType,
-        message,
-        to_email: content.site.email
-      });
+      // 1. Send Admin Notification to Owner
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_ADMIN_TEMPLATE_ID,
+        templateParams
+      );
+
+      // 2. Send Auto-Reply Confirmation to Client
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_CLIENT_TEMPLATE_ID,
+        templateParams
+      );
 
       formNote.textContent = "Thanks — your message is on its way. You'll also get a confirmation email shortly.";
       formNote.className = 'form-note is-success';

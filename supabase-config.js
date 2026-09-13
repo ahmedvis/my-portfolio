@@ -20,26 +20,24 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 /*
   إعدادات نموذج التواصل (EmailJS)
   ====================================
-  EmailJS يرسل رسالة الزائر لبريدك، ويقدر أيضاً يرسل للزائر نفسه
-  رسالة تأكيد تلقائية (auto-reply) مجاناً — عكس Web3Forms.
+  EmailJS يرسل رسالة الزائر لبريدك (Admin Notification)،
+  ويرسل للزائر نفسه رسالة تأكيد تلقائية (Auto-Reply).
 
   1) روح إلى https://www.emailjs.com وأنشئ حساب مجاني
-  2) من "Email Services" اربط بريدك (Gmail أو أي بريد ثاني)
-     وانسخ الـ Service ID
-  3) من "Email Templates" أنشئ قالب لاستقبال رسائل الزوار
-     (استخدم المتغيرات: {{from_name}}, {{from_email}}, {{project_type}},
-     {{message}}) وانسخ الـ Template ID
-  4) اختياري لكن موصى به: أنشئ قالب ثاني للرد التلقائي على الزائر،
-     وفعّله من تبويب "Auto-Reply" داخل القالب الأول (بدون كود إضافي)
+  2) من "Email Services" اربط بريدك وانسخ الـ Service ID
+  3) من "Email Templates" أنشئ القالب الأول للبريد الإداري (template_j243i9i)
+  4) أنشئ القالب الثاني للرد التلقائي للعميل (template_4wtt7tg)
   5) من "Account" → "General" انسخ الـ Public Key
-
-  هذا المفتاح (Public Key) آمن أنه يكون ظاهر في كود الموقع — هو
-  مصمم للاستخدام العام من المتصفح، تماماً مثل anon key في Supabase.
 */
 
 const EMAILJS_PUBLIC_KEY = 'NgiCqpRePcIq5YXII';
 const EMAILJS_SERVICE_ID = 'service_85u09sj';
-const EMAILJS_TEMPLATE_ID = 'template_j243i9i';
+
+// القالب الأول: إشعار لك (Admin Notification)
+const EMAILJS_ADMIN_TEMPLATE_ID = 'template_j243i9i';
+
+// القالب الثاني: الرد التلقائي للعميل (Auto-Reply)
+const EMAILJS_CLIENT_TEMPLATE_ID = 'template_4wtt7tg';
 
 if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY && !EMAILJS_PUBLIC_KEY.startsWith('YOUR-')) {
   emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
