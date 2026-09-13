@@ -4,10 +4,10 @@
 :root {
   --ink: #0e0e10;
   --ink-soft: #38373d;
-  --paper: #f3ece0;
-  --paper-dim: #ebe1d0;
-  --line: #ddd0ba;
-  --stone: #8a7d68;
+  --paper: #f7f5f0;
+  --paper-dim: #efece4;
+  --line: #dcd8cd;
+  --stone: #8a8578;
   --accent: #ff4b1f;
   --accent-ink: #ffffff;
 
@@ -18,6 +18,19 @@
   --radius: 3px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+:root[data-theme="dark"] {
+  --ink: #f2f1ec;
+  --ink-soft: #c7c5bc;
+  --paper: #121214;
+  --paper-dim: #1a1a1d;
+  --line: #2e2e31;
+  --stone: #86837a;
+  --accent: #ff5c33;
+  --accent-ink: #121214;
+}
+
+body { transition: background-color 0.3s var(--ease), color 0.3s var(--ease); }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -89,9 +102,11 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   align-items: center;
   justify-content: space-between;
   padding: 24px clamp(20px, 5vw, 64px);
-  background: rgba(247, 245, 240, 0.9);
+  background: var(--paper);
+  opacity: 0.96;
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
+  transition: background-color 0.3s var(--ease), border-color 0.3s var(--ease);
 }
 
 .logo {
@@ -150,6 +165,29 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   background: var(--ink);
   border-radius: 2px;
 }
+
+/* THEME TOGGLE */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  background: transparent;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0;
+}
+.theme-toggle:hover { background: var(--paper-dim); transform: rotate(-8deg); }
+.theme-toggle svg { width: 18px; height: 18px; }
+.theme-toggle .icon-sun { display: none; }
+.theme-toggle .icon-moon { display: block; }
+:root[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+:root[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+
+.theme-toggle-mobile { display: none; margin-top: 8px; align-self: flex-start; }
 
 .mobile-nav {
   display: none;
@@ -541,8 +579,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   color: var(--stone);
   border-top: 1px solid var(--line);
 }
-.admin-link { color: var(--stone); transition: color 0.2s ease; }
-.admin-link:hover { color: var(--accent); }
+.footer-credit { margin: 0; }
+.footer-credit a { color: var(--stone); text-decoration: underline; text-underline-offset: 2px; transition: color 0.2s ease; }
+.footer-credit a:hover { color: var(--accent); }
 
 /* =========================================================
    LIGHTBOX
@@ -563,7 +602,62 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .lightbox.is-open { opacity: 1; visibility: visible; }
 
 .lightbox-inner { max-width: 880px; max-height: 100%; overflow: auto; }
-.lightbox-inner img { width: 100%; border-radius: var(--radius); }
+
+.lightbox-carousel {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #000;
+}
+.lightbox-carousel-track {
+  display: flex;
+  transition: transform 0.35s var(--ease);
+}
+.carousel-slide {
+  flex: 0 0 100%;
+  min-width: 100%;
+}
+.carousel-slide img {
+  width: 100%;
+  display: block;
+  border-radius: 0;
+}
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.45);
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+.carousel-arrow:hover { background: rgba(0,0,0,0.7); }
+.carousel-arrow-prev { left: 12px; }
+.carousel-arrow-next { right: 12px; }
+.carousel-dots {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.carousel-dot.is-active { background: #fff; transform: scale(1.2); }
+
 .lightbox-caption { padding: 20px 4px; color: var(--paper); }
 .lightbox-cat { font-size: 12px; color: var(--accent); font-weight: 500; }
 .lightbox-caption h3 {
@@ -595,4 +689,6 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   .main-nav { display: none; }
   .menu-toggle { display: flex; }
   .mobile-nav { display: flex; }
+  .site-header .theme-toggle { display: none; }
+  .theme-toggle-mobile { display: flex; }
 }
