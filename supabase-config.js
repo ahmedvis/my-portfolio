@@ -1,6 +1,15 @@
 /*
-  إعدادات الاتصال بـ Supabase و EmailJS
-  ====================================
+  إعدادات الاتصال بـ Supabase
+  =============================
+  هذا الملف الوحيد اللي تحتاجين تعدّلين فيه بياناتك الخاصة.
+
+  1) روحي لمشروعك في supabase.com → Project Settings → API
+  2) انسخي "Project URL" و "anon public" key
+  3) الصقيهم بالأسفل بدل القيم الحالية
+
+  هذا المفتاح (anon key) آمن أنه يكون ظاهر في كود الموقع —
+  هو مصمم للاستخدام العام من المتصفح، والحماية الحقيقية
+  موجودة في قواعد RLS داخل قاعدة البيانات (supabase-schema.sql).
 */
 
 const SUPABASE_URL = 'https://zcqispgrumtcqlmafcaf.supabase.co';
@@ -9,14 +18,8 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /*
-  إعدادات EmailJS
+  نموذج التواصل الآن يُرسل عبر Supabase Edge Function
+  (send-contact-email)، اللي بدورها تتصل بـ Resend من جهة
+  الخادم — بدون أي مفتاح أو إعداد إضافي هنا في كود الموقع.
+  التفاصيل والإعداد موجودة في مجلد supabase/functions/send-contact-email
 */
-const EMAILJS_PUBLIC_KEY = 'NgiCqpRePcIq5YXII';
-const EMAILJS_SERVICE_ID = 'service_85u09sj';
-
-// القالب الأساسي للإشعار
-const EMAILJS_ADMIN_TEMPLATE_ID = 'template_j243i9i';
-
-if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY && !EMAILJS_PUBLIC_KEY.startsWith('YOUR-')) {
-  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
-}

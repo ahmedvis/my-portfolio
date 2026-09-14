@@ -66,6 +66,7 @@ function renderSite(content) {
   document.getElementById('skillsList').innerHTML =
     content.about.skills.map(s => `<li>${escapeHtml(s)}</li>`).join('');
 
+
   /* ===== Contact heading ===== */
   document.getElementById('contactHeading').textContent = content.contact.heading;
   document.getElementById('contactSub').textContent = content.contact.sub;
@@ -210,7 +211,12 @@ function renderSite(content) {
     });
   });
 
-  /* ===== Contact form ===== */
+  /* ===== Contact form =====
+     Submits via a Supabase Edge Function (send-contact-email), which
+     talks to Resend from the server side — no third-party keys are
+     ever exposed in this file. The function emails the message to
+     the site owner, and sends the visitor an automatic confirmation.
+  */
   const form = document.getElementById('contactForm');
   const formNote = document.getElementById('formNote');
   const submitBtn = form.querySelector('.form-submit');
@@ -229,35 +235,24 @@ function renderSite(content) {
       return;
     }
 
-    if (
-      typeof emailjs === 'undefined' ||
-      !EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY.startsWith('YOUR-') ||
-      !EMAILJS_SERVICE_ID || EMAILJS_SERVICE_ID.startsWith('YOUR-') ||
-      !EMAILJS_ADMIN_TEMPLATE_ID
-    ) {
-      formNote.textContent = 'Contact form is not fully set up yet. Please email directly for now.';
-      formNote.className = 'form-note is-error';
-      return;
-    }
-
     submitBtn.disabled = true;
     submitBtn.textContent = 'Sending…';
     formNote.textContent = '';
     formNote.className = 'form-note';
 
-    const templateParams = {
-      from_name: name,
-      from_email: email,
-      project_type: projectType,
-      message: message
-    };
-
     try {
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_ADMIN_TEMPLATE_ID,
-        templateParams
-      );
+      const { data, error } = await supabaseClient.functions.invoke('send-contact-email', {
+        body: {
+          name,
+          email,
+          projectType,
+          message,
+          toEmail: content.site.email
+        }
+      });
+
+      if (error) throw error;
+      if (data && data.error) throw new Error(data.error);
 
       formNote.textContent = "Thanks — your message is on its way. You'll also get a confirmation email shortly.";
       formNote.className = 'form-note is-success';

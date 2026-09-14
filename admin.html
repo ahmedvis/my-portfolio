@@ -190,6 +190,32 @@
         </label>
       </div>
       <p class="field-hint">Email, WhatsApp and Instagram links are set on the <button class="link-btn" data-goto="panel-site">Site panel</button>.</p>
+
+      <h3 class="subhead">Notification email (sent to you)</h3>
+      <p class="field-hint">Use {{name}}, {{email}}, {{projectType}}, {{message}} anywhere in the subject or body — they'll be replaced with the visitor's actual details.</p>
+      <div class="field-grid">
+        <label class="field field-wide">
+          <span>Subject</span>
+          <input type="text" id="f-email-admin-subject">
+        </label>
+        <label class="field field-wide">
+          <span>Body</span>
+          <textarea id="f-email-admin-body" rows="6"></textarea>
+        </label>
+      </div>
+
+      <h3 class="subhead">Auto-reply email (sent to the visitor)</h3>
+      <p class="field-hint">Same variables available here too, though usually only {{name}} is needed.</p>
+      <div class="field-grid">
+        <label class="field field-wide">
+          <span>Subject</span>
+          <input type="text" id="f-email-autoreply-subject">
+        </label>
+        <label class="field field-wide">
+          <span>Body</span>
+          <textarea id="f-email-autoreply-body" rows="6"></textarea>
+        </label>
+      </div>
     </section>
 
     <!-- PROJECTS -->

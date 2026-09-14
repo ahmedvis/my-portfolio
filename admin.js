@@ -182,6 +182,17 @@ function bindAllFields() {
   // Contact
   bind('f-contact-heading', 'contact', c => c.heading, (c, v) => c.heading = v);
   bind('f-contact-sub', 'contact', c => c.sub, (c, v) => c.sub = v);
+
+  // Email templates (nested inside site.emailTemplates)
+  if (!content.site.emailTemplates) {
+    content.site.emailTemplates = {
+      adminSubject: '', adminBody: '', autoReplySubject: '', autoReplyBody: ''
+    };
+  }
+  bind('f-email-admin-subject', 'site', s => s.emailTemplates.adminSubject, (s, v) => s.emailTemplates.adminSubject = v);
+  bind('f-email-admin-body', 'site', s => s.emailTemplates.adminBody, (s, v) => s.emailTemplates.adminBody = v);
+  bind('f-email-autoreply-subject', 'site', s => s.emailTemplates.autoReplySubject, (s, v) => s.emailTemplates.autoReplySubject = v);
+  bind('f-email-autoreply-body', 'site', s => s.emailTemplates.autoReplyBody, (s, v) => s.emailTemplates.autoReplyBody = v);
 }
 
 /* =========================================================
